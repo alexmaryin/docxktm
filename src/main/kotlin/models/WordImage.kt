@@ -1,5 +1,8 @@
 package io.github.alexmaryin.docxktm.models
 
+/**
+ * source image which should be saved inside the docx container
+ */
 data class WordImage(
     val filename: String,
     val description: String = "",

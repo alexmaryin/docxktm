@@ -32,6 +32,9 @@ class Paragraph(style: ParagraphStyle?) : ContentProvider, ParagraphContent {
         }
     }
 
+    /**
+     * block making a header or a footer with page number with specified [template] and [style]
+     */
     fun pageNumber(template: String? = null, style: TextStyle = footerTextStyle) {
 
         template?.let { text(it.substringBefore("#p"), style, breakLine = false) }

@@ -19,19 +19,39 @@ class Body(val document: WordprocessingMLPackage) : ContentProvider {
         document.mainDocumentPart.content.add(element)
     }
 
+    /**
+     * returns a list of paragraphs from document
+     */
     fun getParagraphs(): List<P> = document.mainDocumentPart.content.filterIsInstance<P>()
 
+    /**
+     * returns a list of tables from document
+     */
     fun getTables(): List<Tbl> = document.mainDocumentPart.content.filterIsInstance<JAXBElement<Tbl>>().map { it.value }
 
+    /**
+     * binds an image from [filename] with [description] to the document
+     * @param width width of the image in the document
+     * @param height height of the image in the document
+     */
     fun bindImage(filename: String, description: String = "", width: Long? = null, height: Long? = null): WordImage {
         val nextId = imagesCount + 1
         return WordImage(filename, description, nextId, width, height, File(filename).readBytes())
     }
 
+    /**
+     * Populates docx template with fields from string dictionary [HashMap] <br>
+     * Field for population should be bounded with ```${field_name}``` symbols
+     */
     fun mergeTemplate(dict: HashMap<String, String>) {
         document.mainDocumentPart.variableReplace(dict)
     }
 
+    /**
+     * Populates docx template with fields from dictionary of any types including
+     * data classes of Kotlin, any Java classes, and expressions with MVEL2 syntax.
+     * At the moment, only single fields, properties, methods and ternary operator are supported.
+     */
     fun mergeRichTemplate(dict: Map<String, Any>) {
         val jc = document.mainDocumentPart.jaxbContext
         val templateString = XmlUtils.marshaltoString(document.mainDocumentPart.jaxbElement, true, false, jc)

@@ -8,6 +8,9 @@ import org.docx4j.wml.STTblLayoutType
 import org.docx4j.wml.TblWidth
 import java.math.BigInteger
 
+/**
+ * defines table properties
+ */
 data class TableStyle(
     val layoutType: STTblLayoutType = STTblLayoutType.AUTOFIT,
     val width: TableWidth = TableWidth.Auto,
@@ -18,8 +21,8 @@ sealed class TableWidth(
     val value: Long,
     val type: String
 ) {
-    object PageFit : TableWidth(100 * 50L, "pct")
-    object Auto : TableWidth(0L, "auto")
+    data object PageFit : TableWidth(100 * 50L, "pct")
+    data object Auto : TableWidth(0L, "auto")
     data class Fixed(val pt: Int) : TableWidth(pt.ptToTwips(), "dxa")
     data class Percent(val pct: Int) : TableWidth(pct * 50L, "pct")
 }
@@ -37,7 +40,7 @@ sealed class TableBorder(
     open val horizontalEdges: BorderStyle? = null,
     open val verticalEdges: BorderStyle? = null
 ) {
-    object None : TableBorder()
+    data object None : TableBorder()
     data class OnlyMargin(val border: BorderStyle) : TableBorder(
         bottom = border, top = border, left = border, right = border
     )

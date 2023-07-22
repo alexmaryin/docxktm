@@ -1,5 +1,8 @@
 package io.github.alexmaryin.docxktm.values
 
+/**
+ * defines MS Word style names
+ */
 object Styles {
     const val TITLE = "Title"
     const val SUBTITLE = "Subtitle"

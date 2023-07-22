@@ -4,6 +4,9 @@ import io.github.alexmaryin.docxktm.values.WordColor
 import org.docx4j.wml.JcEnumeration
 import org.docx4j.wml.UnderlineEnumeration
 
+/**
+ * defines text properties
+ */
 data class TextStyle(
     val bold: Boolean = false,
     val italic: Boolean = false,

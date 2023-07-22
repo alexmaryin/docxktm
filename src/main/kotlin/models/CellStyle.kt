@@ -4,6 +4,9 @@ import io.github.alexmaryin.docxktm.values.CellTextDirection
 import io.github.alexmaryin.docxktm.values.Margins
 import org.docx4j.wml.STVerticalJc
 
+/**
+ * defines cell properties
+ */
 data class CellStyle(
     val spannedCells: Int? = null,
     val noWrap: Boolean = false,

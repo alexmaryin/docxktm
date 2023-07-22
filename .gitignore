@@ -3,7 +3,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-key.pub
+prv.key
 local.properties
 
 ### IntelliJ IDEA ###

@@ -13,6 +13,9 @@ interface ParagraphContent {
     fun <T : Any> add(element: T)
 }
 
+/**
+ * main block making a new paragraph in the document
+ */
 fun ContentProvider.paragraph(
     style: ParagraphStyle? = null,
     block: ParagraphContent.() -> Unit
@@ -23,6 +26,9 @@ fun ContentProvider.paragraph(
     }
 }
 
+/**
+ * main block making a new text run inside the paragraph
+ */
 fun ParagraphContent.text(text: String, style: TextStyle = normalTextStyle, breakLine: Boolean = false) {
     val runBlock = io.github.alexmaryin.docxktm.docxFactory.createR()
     val textBlock = io.github.alexmaryin.docxktm.docxFactory.createText()
@@ -35,6 +41,9 @@ fun ParagraphContent.text(text: String, style: TextStyle = normalTextStyle, brea
     add(runBlock)
 }
 
+/**
+ * main block making a new table in the document
+ */
 fun ContentProvider.table(
     style: TableStyle? = null,
     block: Table.() -> Unit
@@ -46,6 +55,9 @@ fun ContentProvider.table(
     paragraph {}    // this is caused by MS Word bug: you need an empty paragraph after table to correct schema
 }
 
+/**
+ * main block putting a new image in the content block
+ */
 context(Body)
 fun ParagraphContent.imageFromFile(file: WordImage) {
     val runBlock = io.github.alexmaryin.docxktm.docxFactory.createR()

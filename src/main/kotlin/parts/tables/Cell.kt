@@ -7,7 +7,7 @@ import io.github.alexmaryin.docxktm.parts.ContentProvider
 import org.docx4j.wml.Tc
 import java.math.BigInteger
 
-class Cell(style: CellStyle?) : ContentProvider {
+internal class Cell(style: CellStyle?) : ContentProvider {
 
     private val cell = io.github.alexmaryin.docxktm.docxFactory.createTc()
 

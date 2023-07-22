@@ -18,6 +18,14 @@ import java.io.File
 
 val docxFactory: ObjectFactory = Context.getWmlObjectFactory()
 
+/**
+ * Creates new docx file from scratch
+ * @param filename creates file with filename including directories
+ * @param autoSave default True
+ * @param pageSize type of the page from [PageSizePaper] default A4
+ * @param landscape default False
+ * @param block lambda for document populating
+ */
 fun DocxNew(
     filename: String,
     autoSave: Boolean = true,
@@ -37,6 +45,13 @@ fun DocxNew(
     }
 }
 
+/**
+ * Opens existing docx file
+ * @param filename creates file with filename including directories
+ * @param newFilename filename for saving the changes
+ * @param autoSave default True
+ * @param block lambda for document editing
+ */
 fun DocxOpen(
     filename: String,
     newFilename: String? = null,
@@ -59,6 +74,9 @@ fun DocxOpen(
     }
 }
 
+/**
+ * @return document orientation portrait or landscape
+ */
 fun WordprocessingMLPackage.orientation(): STPageOrientation = mainDocumentPart.jaxbElement.body.sectPr.pgSz.orient
 
 fun WordprocessingMLPackage.pageSize(): PageSize {
@@ -72,12 +90,18 @@ fun WordprocessingMLPackage.pageSize(): PageSize {
     }
 }
 
+/**
+ * @return header content as a list of paragraphs
+ */
 fun WordprocessingMLPackage.getHeaderContent(name: String = DEFAULT_HEADER): List<P> {
     val header = parts[PartName(name)]
     return if (header is HeaderPart) header.content.filterIsInstance<P>()
     else emptyList()
 }
 
+/**
+ * @return footer content as a list of paragraphs
+ */
 fun WordprocessingMLPackage.getFooterContent(name: String = DEFAULT_FOOTER): List<P> {
     val footer = parts[PartName(name)]
     return if (footer is FooterPart) footer.content.filterIsInstance<P>()
