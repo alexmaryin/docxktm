@@ -8,7 +8,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "io.github.alexmaryin"
             artifactId = "docxktm"
-            version = "1.0.0"
+            version = "1.0.1"
 
             from(components["java"])
         }
@@ -21,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.docx4j:docx4j-JAXB-ReferenceImpl:11.4.9")
+    api("org.docx4j:docx4j-JAXB-ReferenceImpl:11.4.9")
     implementation("org.mvel:mvel2:2.5.0.Final")
 
     testImplementation(kotlin("test"))

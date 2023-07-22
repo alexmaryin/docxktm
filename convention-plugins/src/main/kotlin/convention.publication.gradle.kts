@@ -40,6 +40,9 @@ if (secretPropsFile.exists()) {
 val javadocJar by tasks.registering(Jar::class) {
     archiveClassifier.set("javadoc")
 }
+val sourcesJar by tasks.registering(Jar::class) {
+    archiveClassifier.set("sources")
+}
 
 fun getExtraString(name: String) = ext[name]?.toString()
 
@@ -60,6 +63,8 @@ publishing {
     publications.withType<MavenPublication> {
         // Stub javadoc.jar artifact
         artifact(javadocJar.get())
+        // Stub sources.jar artifact
+        artifact(sourcesJar.get())
 
         // Provide artifacts information requited by Maven Central
         pom {
