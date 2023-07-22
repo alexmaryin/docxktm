@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        mavenLocal()
         mavenCentral()
         gradlePluginPortal()
     }
@@ -10,3 +11,4 @@ plugins {
 }
 
 rootProject.name = "docxktm"
+includeBuild("convention-plugins")
