@@ -64,7 +64,7 @@ fun DocxOpen(
     }
     with(WordprocessingMLPackage.load(file)) {
         block(this)
-        val newFile = File(Paths.TEST_DOCX_DIR + (newFilename ?: filename))
+        val newFile = File(newFilename ?: filename)
         if (autoSave) try {
             save(newFile)
         } catch (e: Docx4JException) {
@@ -79,13 +79,16 @@ fun DocxOpen(
  */
 fun WordprocessingMLPackage.orientation(): STPageOrientation = mainDocumentPart.jaxbElement.body.sectPr.pgSz.orient
 
+/**
+ * @return page size
+ */
 fun WordprocessingMLPackage.pageSize(): PageSize {
     val size = mainDocumentPart.jaxbElement.body.sectPr.pgSz
     return when {
         PageSize.Letter.isEqual(size) -> PageSize.Letter
-        PageSize.A3.isEqual(size) -> PageSize.Letter
-        PageSize.A4.isEqual(size) -> PageSize.Letter
-        PageSize.A5.isEqual(size) -> PageSize.Letter
+        PageSize.A3.isEqual(size) -> PageSize.A3
+        PageSize.A4.isEqual(size) -> PageSize.A4
+        PageSize.A5.isEqual(size) -> PageSize.A5
         else -> PageSize.Custom(size.w.toInt(), size.h.toInt())
     }
 }

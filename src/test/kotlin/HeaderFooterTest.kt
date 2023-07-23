@@ -13,6 +13,21 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class HeaderFooterTest {
+
+    @Test
+    fun `Create simplest doc with header and footer`() {
+        DocxNew(Paths.TEST_DOCX_DIR +"main_parts.docx") {
+            header { text("Header of document") }
+            body {
+                paragraph { text("First block of main text.") }
+            }
+            footer {
+                text("Footer of document")
+                pageNumber()
+            }
+        }
+    }
+
     @Test
     fun `Create docx with header and footer`() {
         DocxNew(Paths.TEST_DOCX_DIR + "header.docx") {

@@ -33,7 +33,7 @@ class Paragraph(style: ParagraphStyle?) : ContentProvider, ParagraphContent {
     }
 
     /**
-     * block making a header or a footer with page number with specified [template] and [style]
+     * puts page number with specified [template] and [style] inside the paragraph
      */
     fun pageNumber(template: String? = null, style: TextStyle = footerTextStyle) {
 

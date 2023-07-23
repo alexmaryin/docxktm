@@ -8,7 +8,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "io.github.alexmaryin"
             artifactId = "docxktm"
-            version = "1.0.1"
+            version = "1.0.2"
 
             from(components["java"])
         }

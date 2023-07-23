@@ -19,7 +19,7 @@ class DocxBaseDSLTest {
 
     @Test
     fun `Open docx file in temporary directory`() {
-        DocxOpen(Paths.TEST_DOCX_DIR + "test.docx", "newfile.docx") {}
+        DocxOpen(Paths.TEST_DOCX_DIR + "test.docx", Paths.TEST_DOCX_DIR + "newfile.docx") {}
         val file = File(Paths.TEST_DOCX_DIR + "newfile.docx")
         assertTrue { file.isFile }
     }
