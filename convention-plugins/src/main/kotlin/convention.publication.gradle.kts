@@ -38,8 +38,11 @@ if (secretPropsFile.exists()) {
 }
 
 val javadocJar by tasks.registering(Jar::class) {
+    dependsOn(tasks.getByName("dokkaJavadoc"))
+    from(tasks.getByName("dokkaJavadoc").outputs)
     archiveClassifier.set("javadoc")
 }
+
 val sourcesJar by tasks.registering(Jar::class) {
     archiveClassifier.set("sources")
 }
@@ -62,7 +65,7 @@ publishing {
     // Configure all publications
     publications.withType<MavenPublication> {
         // Stub javadoc.jar artifact
-        artifact(javadocJar.get())
+        artifact(javadocJar)
         // Stub sources.jar artifact
         artifact(sourcesJar.get())
 
