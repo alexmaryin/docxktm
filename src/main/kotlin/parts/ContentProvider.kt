@@ -4,6 +4,7 @@ import io.github.alexmaryin.docxktm.extensions.applyProperties
 import io.github.alexmaryin.docxktm.models.*
 import io.github.alexmaryin.docxktm.parts.tables.Table
 import org.docx4j.openpackaging.parts.WordprocessingML.BinaryPartAbstractImage
+import javax.imageio.ImageIO
 
 interface ContentProvider {
     fun <T : Any> add(element: T)
@@ -62,6 +63,10 @@ context(Body)
 fun ParagraphContent.imageFromFile(file: WordImage) {
     val runBlock = io.github.alexmaryin.docxktm.docxFactory.createR()
     val imagePart = BinaryPartAbstractImage.createImagePart(document, file.bytes)
+    val info = ImageIO.read(file.bytes.inputStream())
+    val originWidthPx = info.width
+    val originHeightPx = info.height
+
     val inline = when {
         file.height != null && file.width != null -> imagePart.createImageInline(
             file.filename,
@@ -73,20 +78,41 @@ fun ParagraphContent.imageFromFile(file: WordImage) {
             false
         )
 
-        file.width != null -> imagePart.createImageInline(
-            file.filename,
-            file.description,
-            file.id,
-            file.id.toInt(),
-            file.width,
-            false
-        )
+        file.width != null -> {
+            val ratio = originHeightPx.toDouble() / originWidthPx.toDouble()
+            val scaledHeight = (file.width * ratio).toLong()
+            imagePart.createImageInline(
+                file.filename,
+                file.description,
+                file.id,
+                file.id.toInt(),
+                file.width,
+                scaledHeight,
+                false
+            )
+        }
+
+        file.height != null -> {
+            val ratio = originWidthPx.toDouble() / originHeightPx.toDouble()
+            val scaledWidth = (file.height * ratio).toLong()
+            imagePart.createImageInline(
+                file.filename,
+                file.description,
+                file.id,
+                file.id.toInt(),
+                scaledWidth,
+                file.height,
+                false
+            )
+        }
 
         else -> imagePart.createImageInline(
             file.filename,
             file.description,
             file.id,
             file.id.toInt(),
+            originWidthPx.fromPxToEMU(),
+            originHeightPx.fromPxToEMU(),
             false
         )
     }

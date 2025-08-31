@@ -15,3 +15,5 @@ data class WordImage(
 fun Number.fromCmToEMU() = (this.toFloat() * 360000).toLong()
 
 fun Number.fromCmToTWIP() = (this.toFloat() * 567).toLong()
+
+fun Number.fromPxToEMU() = (this.toFloat() * 9525L).toLong()

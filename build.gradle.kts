@@ -1,19 +1,7 @@
 plugins {
     kotlin("jvm") version "1.9.0"
-    id("convention.publication")
     id("org.jetbrains.dokka") version "1.8.20"
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = "io.github.alexmaryin"
-            artifactId = "docxktm"
-            version = "1.0.2"
-
-            from(components["java"])
-        }
-    }
+    id("maven-publish")
 }
 
 repositories {
@@ -21,12 +9,28 @@ repositories {
     mavenCentral()
 }
 
+group = "io.github.alexmaryin"
+version = "1.0.2"
+
 dependencies {
-    api("org.docx4j:docx4j-JAXB-ReferenceImpl:11.4.9")
+    api("org.docx4j:docx4j-JAXB-ReferenceImpl:11.5.4")
     implementation("org.mvel:mvel2:2.5.0.Final")
 
     testImplementation(kotlin("test"))
 }
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+
+            groupId = "io.github.alexmaryin"
+            artifactId = "docxktm"
+            version = "1.0.3"
+        }
+    }
+}
+
 
 tasks.test {
     useJUnitPlatform()
@@ -37,5 +41,9 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 }
 
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(17)
+}
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
