@@ -3,7 +3,6 @@ package io.github.alexmaryin.docxktm
 import io.github.alexmaryin.docxktm.parts.DEFAULT_FOOTER
 import io.github.alexmaryin.docxktm.parts.DEFAULT_HEADER
 import io.github.alexmaryin.docxktm.values.PageSize
-import jakarta.xml.bind.JAXBElement
 import org.docx4j.jaxb.Context
 import org.docx4j.model.structure.PageSizePaper
 import org.docx4j.openpackaging.exceptions.Docx4JException
@@ -14,7 +13,6 @@ import org.docx4j.openpackaging.parts.WordprocessingML.HeaderPart
 import org.docx4j.wml.ObjectFactory
 import org.docx4j.wml.P
 import org.docx4j.wml.STPageOrientation
-import org.docx4j.wml.Text
 import java.io.File
 
 val docxFactory: ObjectFactory = Context.getWmlObjectFactory()
@@ -112,63 +110,4 @@ fun WordprocessingMLPackage.getFooterContent(name: String = DEFAULT_FOOTER): Lis
     else emptyList()
 }
 
-/**
- * Find placeholders in document and replace them with mapped values.
- * Each placeholder should be surrounded by curly braces: ${placeholder_name}.
- * @param replacements map of placeholder names to their values (String to String)
- */
-fun WordprocessingMLPackage.processTemplate(replacements: Map<String, String>) {
-    val placeholderRegex = Regex("""\$\{([^}]+)\}""")
-
-    if (replacements.isEmpty()) return
-    val textElements = getAllTextElements(mainDocumentPart)
-    val placeholders = textElements.filter { element ->
-        val value = element.value
-        !value.isNullOrBlank() && placeholderRegex.containsMatchIn(value)
-    }
-    if (placeholders.isEmpty()) return
-
-    for (placeholder in placeholders) {
-        val original = placeholder.value ?: continue
-        var newValue = original
-
-        placeholderRegex.findAll(original).forEach { match ->
-            val key = match.groupValues[1]
-            replacements[key]?.let { replacement ->
-                newValue = newValue.replace("\${$key}", replacement)
-            }
-        }
-
-        if (newValue != original) {
-            placeholder.value = newValue
-        }
-    }
-}
-
-private fun getAllTextElements(obj: Any?): List<Text> {
-    val result = mutableListOf<Text>()
-    if (obj == null) return result
-
-    when (obj) {
-        is Text -> result.add(obj)
-        is JAXBElement<*> -> {
-            val v = obj.value
-            if (v is Text) result.add(v)
-            result.addAll(getAllTextElements(v))
-        }
-        else -> { // it's a container object
-            val children = try {
-                org.docx4j.TraversalUtil.getChildrenImpl(obj)
-            } catch (_: Exception) {
-                null
-            }
-            if (children != null) {
-                for (child in children) {
-                    result.addAll(getAllTextElements(child))
-                }
-            }
-        }
-    }
-    return result
-}
 
