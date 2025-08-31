@@ -26,7 +26,7 @@ publishing {
 
             groupId = "io.github.alexmaryin"
             artifactId = "docxktm"
-            version = "1.0.3"
+            version = "1.1.0"
         }
     }
 }

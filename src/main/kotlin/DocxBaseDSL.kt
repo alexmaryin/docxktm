@@ -3,7 +3,6 @@ package io.github.alexmaryin.docxktm
 import io.github.alexmaryin.docxktm.parts.DEFAULT_FOOTER
 import io.github.alexmaryin.docxktm.parts.DEFAULT_HEADER
 import io.github.alexmaryin.docxktm.values.PageSize
-import io.github.alexmaryin.docxktm.values.Paths
 import org.docx4j.jaxb.Context
 import org.docx4j.model.structure.PageSizePaper
 import org.docx4j.openpackaging.exceptions.Docx4JException
@@ -110,4 +109,5 @@ fun WordprocessingMLPackage.getFooterContent(name: String = DEFAULT_FOOTER): Lis
     return if (footer is FooterPart) footer.content.filterIsInstance<P>()
     else emptyList()
 }
+
 
