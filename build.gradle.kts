@@ -10,7 +10,7 @@ repositories {
 }
 
 group = "io.github.alexmaryin"
-version = "1.1.1"
+version = "1.1.2"
 
 dependencies {
     api("org.docx4j:docx4j-JAXB-ReferenceImpl:11.5.4")
@@ -26,7 +26,7 @@ publishing {
 
             groupId = "io.github.alexmaryin"
             artifactId = "docxktm"
-            version = "1.1.1"
+            version = "1.1.2"
         }
     }
 }

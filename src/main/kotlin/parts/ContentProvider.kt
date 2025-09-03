@@ -62,7 +62,7 @@ fun ContentProvider.table(
 context(Body)
 fun ParagraphContent.imageFromFile(file: WordImage) {
     val runBlock = io.github.alexmaryin.docxktm.docxFactory.createR()
-    val imagePart = BinaryPartAbstractImage.createImagePart(document, file.bytes)
+    val imagePart = BinaryPartAbstractImage.createImagePart(this@Body.document, file.bytes)
     val info = ImageIO.read(file.bytes.inputStream())
     val originWidthPx = info.width
     val originHeightPx = info.height
@@ -120,5 +120,5 @@ fun ParagraphContent.imageFromFile(file: WordImage) {
     val drawing = io.github.alexmaryin.docxktm.docxFactory.createDrawing()
     drawing.anchorOrInline.add(inline)
     runBlock.content.add(drawing)
-    add(runBlock)
+    this.add(runBlock)
 }
