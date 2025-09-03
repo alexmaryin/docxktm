@@ -1,11 +1,9 @@
 package io.github.alexmaryin.docxktm
 
 import io.github.alexmaryin.docxktm.extensions.body
-import io.github.alexmaryin.docxktm.models.ParagraphStyle
 import io.github.alexmaryin.docxktm.parts.paragraph
 import io.github.alexmaryin.docxktm.parts.text
 import io.github.alexmaryin.docxktm.templates.DocxTemplate
-import io.github.alexmaryin.docxktm.templates.processTemplate
 import io.github.alexmaryin.docxktm.values.CurrencyFormat
 import io.github.alexmaryin.docxktm.values.DateFormat
 import io.github.alexmaryin.docxktm.values.NumberFormat
@@ -36,46 +34,19 @@ class DocxTemplateTest {
                 }
             }
         }
-        if (!File(Paths.TEST_DOCX_DIR + "format_template.docx").exists()) {
-            DocxNew(Paths.TEST_DOCX_DIR + "format_template.docx") {
+        if (!File(Paths.TEST_DOCX_DIR + "default_filler_template.docx").exists()) {
+            DocxNew(Paths.TEST_DOCX_DIR + "default_filler_template.docx") {
                 body {
                     paragraph {
-                        text("Simple string \${str} is simple string.")
-                        text("Now number value \${number} with two digits after decimal separator.")
-                        text("Now number value \${numberDef} with default toString.")
-                        text("Then rubles amount \${amount} for the price.")
-                        text("Finally, today date is \${today} with format MMMM dd, yyyy.")
+                        text("Hello \${name}, welcome to \${place}.")
+                    }
+                    paragraph {
+                        text("Your age is \${age} and status is \${status}.")
+                    }
+                    paragraph {
+                        text("Missing field: \${missing}.")
                     }
                 }
-            }
-        }
-    }
-
-    @Test
-    fun `Open docx with placeholders and process with replacements map`() {
-        DocxOpen(
-            Paths.TEST_DOCX_DIR + "template.docx",
-            Paths.TEST_DOCX_DIR + "output.docx"
-        ) {
-            val replacements = mapOf(
-                "today" to today,
-                "name" to "Alex Maryin",
-                "library" to "DocxKtm"
-            )
-            processTemplate(replacements)
-        }
-
-        DocxOpen(Paths.TEST_DOCX_DIR + "output.docx", autoSave = false) {
-            body {
-                assertTrue { getParagraphs().size == 2 }
-                assertEquals(
-                    expected = "This template is made by Alex Maryin for testing DocxKtm library.",
-                    actual = "${getParagraphs().first()}"
-                )
-                assertEquals(
-                    expected = "Today is: $today.",
-                    actual = "${getParagraphs().last()}"
-                )
             }
         }
     }
@@ -128,6 +99,38 @@ class DocxTemplateTest {
                             "Then rubles amount 3 555,00 ₽ for the price." +
                             "Finally, today date is $date with format MMMM dd, yyyy.",
                     actual = "${getParagraphs().first()}"
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `Create different formats for placeholders with default values`() {
+        DocxTemplate(
+            templateFilename = Paths.TEST_DOCX_DIR + "default_filler_template.docx",
+            outputFilename = Paths.TEST_DOCX_DIR + "default_filler_output.docx"
+        ) {
+            "name" to "Alex"
+            "place" to "Moscow"
+            "age" to 41
+            "status" to "employed"
+            "unknown" to "this filed should not be replaced"
+        }
+
+        DocxOpen(Paths.TEST_DOCX_DIR + "default_filler_output.docx", autoSave = false) {
+            body {
+                assertTrue { getParagraphs().size == 3 }
+                assertEquals(
+                    expected = "Hello Alex, welcome to Moscow.",
+                    actual = "${getParagraphs()[0]}"
+                )
+                assertEquals(
+                    expected = "Your age is 41 and status is employed.",
+                    actual = "${getParagraphs()[1]}"
+                )
+                assertEquals(
+                    expected = "Missing field: .",
+                    actual = "${getParagraphs()[2]}"
                 )
             }
         }
