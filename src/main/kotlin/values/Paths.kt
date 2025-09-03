@@ -13,6 +13,7 @@ object Paths {
 
     val TEST_IMAGES_DIR: String get() = createPathIfNotExistAndReturn("temp/images/")
     val TEST_DOCX_DIR: String get() = createPathIfNotExistAndReturn("temp/docxOut/")
+    val TEMPLATES_DIR: String get() = createPathIfNotExistAndReturn("temp/templates/")
     val DOCX_DIR: String get() = createPathIfNotExistAndReturn("docxOut/")
     val TEMP_DIR: String get() = createPathIfNotExistAndReturn("docxOut/temp/")
 }
