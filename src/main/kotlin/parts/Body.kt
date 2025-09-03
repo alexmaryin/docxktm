@@ -1,5 +1,6 @@
 package io.github.alexmaryin.docxktm.parts
 
+import io.github.alexmaryin.docxktm.dsl.DocxDsl
 import io.github.alexmaryin.docxktm.models.WordImage
 import jakarta.xml.bind.JAXBElement
 import org.docx4j.XmlUtils
@@ -11,6 +12,7 @@ import org.mvel2.CompileException
 import org.mvel2.MVEL.eval
 import java.io.File
 
+@DocxDsl
 class Body(val document: WordprocessingMLPackage) : ContentProvider {
 
     private var imagesCount = 0L

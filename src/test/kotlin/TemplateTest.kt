@@ -22,8 +22,8 @@ class DocxTemplateTest {
 
     @BeforeTest
     fun setup() {
-        if (!File(Paths.TEST_DOCX_DIR + "template.docx").exists()) {
-            DocxNew(Paths.TEST_DOCX_DIR + "template.docx") {
+        if (!File(Paths.TEMPLATES_DIR + "template.docx").exists()) {
+            DocxNew(Paths.TEMPLATES_DIR + "template.docx") {
                 body {
                     paragraph {
                         text("This template is made by \${name} for testing \${library} library.")
@@ -34,8 +34,8 @@ class DocxTemplateTest {
                 }
             }
         }
-        if (!File(Paths.TEST_DOCX_DIR + "default_filler_template.docx").exists()) {
-            DocxNew(Paths.TEST_DOCX_DIR + "default_filler_template.docx") {
+        if (!File(Paths.TEMPLATES_DIR + "default_filler_template.docx").exists()) {
+            DocxNew(Paths.TEMPLATES_DIR + "default_filler_template.docx") {
                 body {
                     paragraph {
                         text("Hello \${name}, welcome to \${place}.")
@@ -54,7 +54,7 @@ class DocxTemplateTest {
     @Test
     fun `Create placeholders with DSL test`() {
         DocxTemplate(
-            templateFilename = Paths.TEST_DOCX_DIR + "template.docx",
+            templateFilename = Paths.TEMPLATES_DIR + "template.docx",
             outputFilename = Paths.TEST_DOCX_DIR + "outputDSL.docx"
         ) {
             "today" to today
@@ -80,7 +80,7 @@ class DocxTemplateTest {
     @Test
     fun `Create different formats for placeholders`() {
         DocxTemplate(
-            templateFilename = Paths.TEST_DOCX_DIR + "format_template.docx",
+            templateFilename = Paths.TEMPLATES_DIR + "format_template.docx",
             outputFilename = Paths.TEST_DOCX_DIR + "format_output.docx"
         ) {
             "str" to "simple string"
@@ -107,7 +107,7 @@ class DocxTemplateTest {
     @Test
     fun `Create different formats for placeholders with default values`() {
         DocxTemplate(
-            templateFilename = Paths.TEST_DOCX_DIR + "default_filler_template.docx",
+            templateFilename = Paths.TEMPLATES_DIR + "default_filler_template.docx",
             outputFilename = Paths.TEST_DOCX_DIR + "default_filler_output.docx"
         ) {
             "name" to "Alex"

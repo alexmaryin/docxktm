@@ -1,5 +1,6 @@
 package io.github.alexmaryin.docxktm.extensions
 
+import io.github.alexmaryin.docxktm.dsl.DocxDsl
 import io.github.alexmaryin.docxktm.models.ParagraphStyle
 import io.github.alexmaryin.docxktm.parts.Body
 import io.github.alexmaryin.docxktm.parts.Footer

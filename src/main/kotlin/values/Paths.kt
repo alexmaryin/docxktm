@@ -3,7 +3,7 @@ package io.github.alexmaryin.docxktm.values
 import java.nio.file.Files
 import java.nio.file.Path
 
-object Paths {
+internal object Paths {
     private fun createPathIfNotExistAndReturn(path: String): String {
         if (Files.notExists(Path.of(path))) {
             Files.createDirectories(Path.of(path))
