@@ -11,7 +11,6 @@ import org.docx4j.wml.CTSimpleField
 import org.docx4j.wml.P
 import java.math.BigInteger
 
-@DocxDsl
 class Paragraph(style: ParagraphStyle?) : ContentProvider, ParagraphContent {
     private val paragraph = docxFactory.createP()
 

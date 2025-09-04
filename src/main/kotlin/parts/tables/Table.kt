@@ -1,14 +1,12 @@
 package io.github.alexmaryin.docxktm.parts.tables
 
 import io.github.alexmaryin.docxktm.docxFactory
-import io.github.alexmaryin.docxktm.dsl.DocxDsl
 import io.github.alexmaryin.docxktm.models.RowStyle
 import io.github.alexmaryin.docxktm.models.TableStyle
 import io.github.alexmaryin.docxktm.models.toCTBorder
 import org.docx4j.wml.Tbl
 import java.math.BigInteger
 
-@DocxDsl
 class Table(style: TableStyle?) {
     private val table: Tbl = docxFactory.createTbl()
 

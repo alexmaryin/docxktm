@@ -1,6 +1,5 @@
 package io.github.alexmaryin.docxktm.parts.tables
 
-import io.github.alexmaryin.docxktm.dsl.DocxDsl
 import io.github.alexmaryin.docxktm.models.CellStyle
 import io.github.alexmaryin.docxktm.models.RowStyle
 import io.github.alexmaryin.docxktm.models.TextStyle
@@ -11,7 +10,6 @@ import io.github.alexmaryin.docxktm.parts.text
 import org.docx4j.wml.Tr
 import java.math.BigInteger
 
-@DocxDsl
 class Row(style: RowStyle?) : ContentProvider {
     private val row = io.github.alexmaryin.docxktm.docxFactory.createTr()
 

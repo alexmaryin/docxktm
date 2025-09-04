@@ -11,7 +11,6 @@ import org.docx4j.wml.P
 
 const val DEFAULT_FOOTER = "/word/footer.xml"
 
-@DocxDsl
 class Footer(
     document: WordprocessingMLPackage,
     name: String? = null
