@@ -1,14 +1,14 @@
 package io.github.alexmaryin.docxktm.models
 
+import io.github.alexmaryin.docxktm.values.Alignment
+import io.github.alexmaryin.docxktm.values.RowHeightRule
 import io.github.alexmaryin.docxktm.values.ptToTwips
-import org.docx4j.wml.JcEnumeration
-import org.docx4j.wml.STHeightRule
 
 /**
  * defines row table properties
  */
 data class RowStyle(
-    val alignment: JcEnumeration = JcEnumeration.LEFT,
+    val alignment: Alignment = Alignment.LEFT,
     val padding: TableWidth = TableWidth.Auto,
     val headerRow: Boolean = false,
     val height: RowHeight = RowHeight.Auto,
@@ -16,9 +16,9 @@ data class RowStyle(
 
 sealed class RowHeight(
     val value: Long,
-    val type: STHeightRule
+    val type: RowHeightRule
 ) {
-    data object Auto : RowHeight(0, STHeightRule.AUTO)
-    data class AtLeast(val height: Int) : RowHeight(height.ptToTwips(), STHeightRule.AT_LEAST)
-    data class Exact(val height: Int) : RowHeight(height.ptToTwips(), STHeightRule.EXACT)
+    data object Auto : RowHeight(0, RowHeightRule.AUTO)
+    data class AtLeast(val height: Int) : RowHeight(height.ptToTwips(), RowHeightRule.AT_LEAST)
+    data class Exact(val height: Int) : RowHeight(height.ptToTwips(), RowHeightRule.EXACT)
 }

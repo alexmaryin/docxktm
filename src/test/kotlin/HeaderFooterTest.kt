@@ -5,10 +5,13 @@ import io.github.alexmaryin.docxktm.extensions.footer
 import io.github.alexmaryin.docxktm.extensions.header
 import io.github.alexmaryin.docxktm.models.ParagraphStyle
 import io.github.alexmaryin.docxktm.models.normalTextStyle
-import io.github.alexmaryin.docxktm.parts.*
+import io.github.alexmaryin.docxktm.parts.DEFAULT_FOOTER
+import io.github.alexmaryin.docxktm.parts.DEFAULT_HEADER
+import io.github.alexmaryin.docxktm.parts.paragraph
+import io.github.alexmaryin.docxktm.parts.text
+import io.github.alexmaryin.docxktm.values.Alignment
 import io.github.alexmaryin.docxktm.values.Paths
-import org.docx4j.wml.JcEnumeration
-import org.docx4j.wml.UnderlineEnumeration
+import io.github.alexmaryin.docxktm.values.UnderlineStyle
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -31,7 +34,7 @@ class HeaderFooterTest {
     @Test
     fun `Create docx with header and footer`() {
         DocxNew(Paths.TEST_DOCX_DIR + "header.docx") {
-            header(ParagraphStyle(alignment = JcEnumeration.CENTER)) {
+            header(ParagraphStyle(alignment = Alignment.CENTER)) {
                 text("Header of document", style = normalTextStyle.copy(italic = true))
             }
             body {
@@ -39,8 +42,8 @@ class HeaderFooterTest {
                     text("First block of main text.")
                 }
             }
-            footer(ParagraphStyle(alignment = JcEnumeration.RIGHT)) {
-                text("Footer of document", style = normalTextStyle.copy(underlined = UnderlineEnumeration.DASH))
+            footer(ParagraphStyle(alignment = Alignment.RIGHT)) {
+                text("Footer of document", style = normalTextStyle.copy(underlined = UnderlineStyle.DASH))
                 pageNumber()
             }
         }
@@ -60,7 +63,7 @@ class HeaderFooterTest {
                     text("Simple text in the document.")
                 }
             }
-            footer(ParagraphStyle(alignment = JcEnumeration.CENTER)) {
+            footer(ParagraphStyle(alignment = Alignment.CENTER)) {
                 pageNumber("page #p of #t")
             }
         }

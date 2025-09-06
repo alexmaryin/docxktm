@@ -1,23 +1,31 @@
 package io.github.alexmaryin.docxktm.models
 
+import io.github.alexmaryin.docxktm.values.Alignment
+import io.github.alexmaryin.docxktm.values.UnderlineStyle
 import io.github.alexmaryin.docxktm.values.WordColor
-import org.docx4j.wml.JcEnumeration
-import org.docx4j.wml.UnderlineEnumeration
 
 /**
- * defines text properties
+ * defines text properties.
+ *
+ * There are some predefined values to simplicity:
+ *
+ * [normalTextStyle] - default style
+ *
+ * [headerRowStyle] - specifies only bold style for a header
+ *
+ * [footerTextStyle] - specifies only small font size for a footer
  */
 data class TextStyle(
     val bold: Boolean = false,
     val italic: Boolean = false,
-    val underlined: UnderlineEnumeration? = null,
+    val underlined: UnderlineStyle? = null,
     val capitalized: Boolean = false,
     val small: Boolean = false,
     val strike: Boolean = false,
     val doubleStrike: Boolean = false,
     val color: WordColor = WordColor.Default,
     val size: Int? = null,
-    val align: JcEnumeration = JcEnumeration.LEFT
+    val align: Alignment = Alignment.LEFT
 )
 
 val normalTextStyle = TextStyle()

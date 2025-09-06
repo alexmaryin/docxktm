@@ -1,5 +1,6 @@
 package io.github.alexmaryin.docxktm.parts.tables
 
+import io.github.alexmaryin.docxktm.docxFactory
 import io.github.alexmaryin.docxktm.models.RowStyle
 import io.github.alexmaryin.docxktm.models.TableStyle
 import io.github.alexmaryin.docxktm.models.toCTBorder
@@ -7,25 +8,25 @@ import org.docx4j.wml.Tbl
 import java.math.BigInteger
 
 class Table(style: TableStyle?) {
-    private val table: Tbl = io.github.alexmaryin.docxktm.docxFactory.createTbl()
+    private val table: Tbl = docxFactory.createTbl()
 
     init {
-        style?.let {
-            val tableProperties = io.github.alexmaryin.docxktm.docxFactory.createTblPr()
-            tableProperties.tblBorders = io.github.alexmaryin.docxktm.docxFactory.createTblBorders().apply {
-                it.borders.bottom?.let { bottom = it.toCTBorder() }
-                it.borders.top?.let { top = it.toCTBorder() }
-                it.borders.left?.let { left = it.toCTBorder() }
-                it.borders.right?.let { right = it.toCTBorder() }
-                it.borders.horizontalEdges?.let { insideH = it.toCTBorder() }
-                it.borders.verticalEdges?.let { insideV = it.toCTBorder() }
+        style?.let { borderStyle ->
+            val tableProperties = docxFactory.createTblPr()
+            tableProperties.tblBorders = docxFactory.createTblBorders().apply {
+                borderStyle.borders.bottom?.let { bottom = it.toCTBorder() }
+                borderStyle.borders.top?.let { top = it.toCTBorder() }
+                borderStyle.borders.left?.let { left = it.toCTBorder() }
+                borderStyle.borders.right?.let { right = it.toCTBorder() }
+                borderStyle.borders.horizontalEdges?.let { insideH = it.toCTBorder() }
+                borderStyle.borders.verticalEdges?.let { insideV = it.toCTBorder() }
             }
-            tableProperties.tblLayout = io.github.alexmaryin.docxktm.docxFactory.createCTTblLayoutType().apply {
-                type = it.layoutType
+            tableProperties.tblLayout = docxFactory.createCTTblLayoutType().apply {
+                type = borderStyle.layoutType.value
             }
-            tableProperties.tblW = io.github.alexmaryin.docxktm.docxFactory.createTblWidth().apply {
-                type = it.width.type
-                w = BigInteger.valueOf(it.width.value)
+            tableProperties.tblW = docxFactory.createTblWidth().apply {
+                type = borderStyle.width.type
+                w = BigInteger.valueOf(borderStyle.width.value)
             }
             table.tblPr = tableProperties
         }

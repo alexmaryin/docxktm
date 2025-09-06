@@ -2,7 +2,7 @@ package io.github.alexmaryin.docxktm.models
 
 import io.github.alexmaryin.docxktm.values.CellTextDirection
 import io.github.alexmaryin.docxktm.values.Margins
-import org.docx4j.wml.STVerticalJc
+import io.github.alexmaryin.docxktm.values.VerticalAlign
 
 /**
  * defines cell properties
@@ -14,5 +14,5 @@ data class CellStyle(
     val padding: Margins? = null,
     val width: TableWidth = TableWidth.Auto,
     val textDirection: CellTextDirection = CellTextDirection.TOP_LEFT,
-    val verticalAlign: STVerticalJc = STVerticalJc.TOP
+    val verticalAlign: VerticalAlign = VerticalAlign.TOP
 )

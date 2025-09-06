@@ -1,5 +1,6 @@
 package io.github.alexmaryin.docxktm.templates
 
+import io.github.alexmaryin.docxktm.dsl.DocxDsl
 import io.github.alexmaryin.docxktm.values.CurrencyFormat
 import io.github.alexmaryin.docxktm.values.DateFormat
 import io.github.alexmaryin.docxktm.values.NumberFormat
@@ -10,6 +11,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+@DocxDsl
 class DocxTemplateBuilder {
     internal val replacements = mutableMapOf<String, String>()
     private val pending = mutableListOf<PendingReplacement<*>>()
@@ -39,8 +41,8 @@ class DocxTemplateBuilder {
             groupingSeparator = ' '
         }
         val formatter = DecimalFormat(format.pattern, symbols)
-        replacements[this.key] = formatter.format(this.value)
-        pending.remove(this)
+        this@DocxTemplateBuilder.replacements[this.key] = formatter.format(this.value)
+        this@DocxTemplateBuilder.pending.remove(this)
     }
 
     infix fun PendingNumber.with(currency: CurrencyFormat) {
@@ -49,9 +51,9 @@ class DocxTemplateBuilder {
         }
         val formatter = DecimalFormat("#,##0.00", symbols)
         val formatted = formatter.format(this.value)
-        replacements[this.key] = if (currency == CurrencyFormat.USD) "${currency.symbol}$formatted"
+        this@DocxTemplateBuilder.replacements[this.key] = if (currency == CurrencyFormat.USD) "${currency.symbol}$formatted"
             else "$formatted ${currency.symbol}"
-        pending.remove(this)
+        this@DocxTemplateBuilder.pending.remove(this)
     }
 
     infix fun PendingDate.with(format: DateFormat) {
@@ -61,8 +63,8 @@ class DocxTemplateBuilder {
             is LocalDateTime -> v.format(formatter)
             else -> v.toString()
         }
-        replacements[this.key] = formatted
-        pending.remove(this)
+        this@DocxTemplateBuilder.replacements[this.key] = formatted
+        this@DocxTemplateBuilder.pending.remove(this)
     }
 
     internal fun commitPending() {

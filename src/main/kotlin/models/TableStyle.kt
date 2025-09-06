@@ -1,10 +1,11 @@
 package io.github.alexmaryin.docxktm.models
 
+import io.github.alexmaryin.docxktm.docxFactory
+import io.github.alexmaryin.docxktm.values.TableBorderType
+import io.github.alexmaryin.docxktm.values.TableLayout
 import io.github.alexmaryin.docxktm.values.WordColor
 import io.github.alexmaryin.docxktm.values.ptToTwips
 import org.docx4j.wml.CTBorder
-import org.docx4j.wml.STBorder
-import org.docx4j.wml.STTblLayoutType
 import org.docx4j.wml.TblWidth
 import java.math.BigInteger
 
@@ -12,7 +13,7 @@ import java.math.BigInteger
  * defines table properties
  */
 data class TableStyle(
-    val layoutType: STTblLayoutType = STTblLayoutType.AUTOFIT,
+    val layoutType: TableLayout = TableLayout.AUTOFIT,
     val width: TableWidth = TableWidth.Auto,
     val borders: TableBorder = TableBorder.None
 )
@@ -27,7 +28,7 @@ sealed class TableWidth(
     data class Percent(val pct: Int) : TableWidth(pct * 50L, "pct")
 }
 
-fun TableWidth.toTblWidth() : TblWidth = io.github.alexmaryin.docxktm.docxFactory.createTblWidth().apply {
+fun TableWidth.toTblWidth() : TblWidth = docxFactory.createTblWidth().apply {
     w = BigInteger.valueOf(value)
     type = this@toTblWidth.type
 }
@@ -58,15 +59,15 @@ sealed class TableBorder(
 }
 
 data class BorderStyle(
-    val type: STBorder = STBorder.SINGLE,
+    val type: TableBorderType = TableBorderType.SINGLE,
     val width: Int = 1,
     val color: WordColor = WordColor.Auto
 )
 
-fun BorderStyle.toCTBorder(): CTBorder = io.github.alexmaryin.docxktm.docxFactory.createCTBorder().apply {
+fun BorderStyle.toCTBorder(): CTBorder = docxFactory.createCTBorder().apply {
     color = this@toCTBorder.color.name
     sz = BigInteger.valueOf(width * 8L)
-    `val` = type
+    `val` = type.value
 }
 
 fun singleBorder(color: WordColor = WordColor.Auto): TableBorder = TableBorder.All(BorderStyle(color = color))

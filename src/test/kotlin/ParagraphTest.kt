@@ -4,13 +4,9 @@ import io.github.alexmaryin.docxktm.extensions.*
 import io.github.alexmaryin.docxktm.models.ParagraphStyle
 import io.github.alexmaryin.docxktm.models.TextStyle
 import io.github.alexmaryin.docxktm.models.normalTextStyle
-import io.github.alexmaryin.docxktm.parts.*
-import io.github.alexmaryin.docxktm.values.Paths
-import io.github.alexmaryin.docxktm.values.Styles
-import io.github.alexmaryin.docxktm.values.WordColor
-import io.github.alexmaryin.docxktm.values.defaultSpacing
-import org.docx4j.wml.JcEnumeration
-import org.docx4j.wml.UnderlineEnumeration
+import io.github.alexmaryin.docxktm.parts.paragraph
+import io.github.alexmaryin.docxktm.parts.text
+import io.github.alexmaryin.docxktm.values.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -28,7 +24,7 @@ class ParagraphTest {
                         text = "Body text for the first paragraph.",
                         style = TextStyle(
                             bold = true,
-                            underlined = UnderlineEnumeration.SINGLE,
+                            underlined = UnderlineStyle.SINGLE,
                             color = WordColor.Blue
                         )
                     )
@@ -56,7 +52,7 @@ class ParagraphTest {
                         text = "Body text for the first paragraph.",
                         style = TextStyle(
                             bold = true,
-                            underlined = UnderlineEnumeration.SINGLE,
+                            underlined = UnderlineStyle.SINGLE,
                             color = WordColor.Blue
                         )
                     )
@@ -156,16 +152,16 @@ class ParagraphTest {
                 paragraph {
                     text("Left side alignment text")
                 }
-                paragraph(ParagraphStyle(alignment = JcEnumeration.RIGHT)) {
+                paragraph(ParagraphStyle(alignment = Alignment.RIGHT)) {
                     text("Right side alignment text")
                 }
-                paragraph(ParagraphStyle(alignment = JcEnumeration.BOTH)) {
+                paragraph(ParagraphStyle(alignment = Alignment.JUSTIFIED)) {
                     text("Both sides alignment text")
                 }
-                paragraph(ParagraphStyle(alignment = JcEnumeration.CENTER)) {
+                paragraph(ParagraphStyle(alignment = Alignment.CENTER)) {
                     text("Center alignment text")
                 }
-                paragraph(ParagraphStyle(alignment = JcEnumeration.DISTRIBUTE)) {
+                paragraph(ParagraphStyle(alignment = Alignment.DISTRIBUTE)) {
                     text("Distributed alignment text")
                 }
             }
@@ -175,8 +171,8 @@ class ParagraphTest {
                 with(getParagraphs()) {
                     assertTrue { size == 5 }
                     val correctValues = listOf(
-                        JcEnumeration.LEFT, JcEnumeration.RIGHT, JcEnumeration.BOTH,
-                        JcEnumeration.CENTER, JcEnumeration.DISTRIBUTE
+                        Alignment.LEFT, Alignment.RIGHT, Alignment.JUSTIFIED,
+                        Alignment.CENTER, Alignment.DISTRIBUTE
                     )
                     forEachIndexed { index, p ->
                         assertTrue { p.alignment() == correctValues[index] }

@@ -33,8 +33,8 @@ class PaymentTemplateTest {
             "recipientVAT" to "12345678912"
             "recipientKPP" to "1234567890"
             "recipient" to "ООО \"РОГА и КОПЫТА\""
-            "KBK" to ""
-            "OKTMO" to ""
+//            "KBK" to ""
+//            "OKTMO" to ""
             "paymentName" to "Оплата по счету N 122923 от 30.03.2025, 10000 руб., НДС 20%"
         }
     }

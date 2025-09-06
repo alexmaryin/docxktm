@@ -1,5 +1,7 @@
 package io.github.alexmaryin.docxktm.parts
 
+import io.github.alexmaryin.docxktm.docxFactory
+import io.github.alexmaryin.docxktm.dsl.DocxDsl
 import io.github.alexmaryin.docxktm.extensions.substringBetween
 import io.github.alexmaryin.docxktm.models.ParagraphStyle
 import io.github.alexmaryin.docxktm.models.TextStyle
@@ -10,7 +12,7 @@ import org.docx4j.wml.P
 import java.math.BigInteger
 
 class Paragraph(style: ParagraphStyle?) : ContentProvider, ParagraphContent {
-    private val paragraph = io.github.alexmaryin.docxktm.docxFactory.createP()
+    private val paragraph = docxFactory.createP()
 
     override fun <T : Any> add(element: T) {
         paragraph.content.add(element)
@@ -19,14 +21,14 @@ class Paragraph(style: ParagraphStyle?) : ContentProvider, ParagraphContent {
     fun getP(): P = paragraph
 
     init {
-        style?.let {
-            val paragraphProperties = io.github.alexmaryin.docxktm.docxFactory.createPPr()
-            paragraphProperties.pStyle = io.github.alexmaryin.docxktm.docxFactory.createPPrBasePStyle().apply { `val` = it.styleName }
-            paragraphProperties.jc = io.github.alexmaryin.docxktm.docxFactory.createJc().apply { `val` = it.alignment }
-            paragraphProperties.spacing = io.github.alexmaryin.docxktm.docxFactory.createPPrBaseSpacing().apply {
-                it.spacing.after?.let { after = BigInteger.valueOf(it.ptToTwips()) }
-                it.spacing.before?.let { before = BigInteger.valueOf(it.ptToTwips()) }
-                it.spacing.between?.let { line = BigInteger.valueOf(it.ptToTwips()) }
+        style?.let { paragraphStyle ->
+            val paragraphProperties = docxFactory.createPPr()
+            paragraphProperties.pStyle = docxFactory.createPPrBasePStyle().apply { `val` = paragraphStyle.styleName }
+            paragraphProperties.jc = docxFactory.createJc().apply { `val` = paragraphStyle.alignment.value }
+            paragraphProperties.spacing = docxFactory.createPPrBaseSpacing().apply {
+                paragraphStyle.spacing.after?.let { after = BigInteger.valueOf(it.ptToTwips()) }
+                paragraphStyle.spacing.before?.let { before = BigInteger.valueOf(it.ptToTwips()) }
+                paragraphStyle.spacing.between?.let { line = BigInteger.valueOf(it.ptToTwips()) }
             }
             paragraph.pPr = paragraphProperties
         }
@@ -39,13 +41,13 @@ class Paragraph(style: ParagraphStyle?) : ContentProvider, ParagraphContent {
 
         template?.let { text(it.substringBefore("#p"), style, breakLine = false) }
 
-        val page = io.github.alexmaryin.docxktm.docxFactory.createPFldSimple(CTSimpleField().apply { instr = "PAGE \\* MERGEFORMAT" })
+        val page = docxFactory.createPFldSimple(CTSimpleField().apply { instr = "PAGE \\* MERGEFORMAT" })
         paragraph.content.add(page)
 
         template?.let {
             text(it.substringBetween("#p", "#t"), style, breakLine = false)
             if (it.contains("#t")) {
-                val total = io.github.alexmaryin.docxktm.docxFactory.createPFldSimple(
+                val total = docxFactory.createPFldSimple(
                     CTSimpleField().apply { instr = "NUMPAGES \\* MERGEFORMAT" }
                 )
                 paragraph.content.add(total)

@@ -1,5 +1,6 @@
 package io.github.alexmaryin.docxktm.parts
 
+import io.github.alexmaryin.docxktm.dsl.DocxDsl
 import io.github.alexmaryin.docxktm.models.WordImage
 import jakarta.xml.bind.JAXBElement
 import org.docx4j.XmlUtils
@@ -11,6 +12,7 @@ import org.mvel2.CompileException
 import org.mvel2.MVEL.eval
 import java.io.File
 
+@DocxDsl
 class Body(val document: WordprocessingMLPackage) : ContentProvider {
 
     private var imagesCount = 0L
@@ -56,13 +58,10 @@ class Body(val document: WordprocessingMLPackage) : ContentProvider {
         val jc = document.mainDocumentPart.jaxbContext
         val templateString = XmlUtils.marshaltoString(document.mainDocumentPart.jaxbElement, true, false, jc)
         val mergedString = templateString.replace(Regex("\\$\\{(.*?)}")) {
-            println("match ${it.value}")
             val expression = it.groups[1]?.value?.replace(Regex("<[^>]*>"), "")
-            println("cleared expression $expression")
             val value = try {
                 eval(expression, dict).toString()
-            } catch (e: CompileException) { "" }
-            println("evaluated $value")
+            } catch (_: CompileException) { "" }
             value
         }
 

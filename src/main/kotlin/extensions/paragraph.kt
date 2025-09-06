@@ -1,7 +1,7 @@
 package io.github.alexmaryin.docxktm.extensions
 
+import io.github.alexmaryin.docxktm.values.Alignment
 import io.github.alexmaryin.docxktm.values.ParagraphSpacing
-import org.docx4j.wml.JcEnumeration
 import org.docx4j.wml.P
 import org.docx4j.wml.R
 
@@ -13,7 +13,9 @@ fun P.runs() = content.filterIsInstance<R>()
 /**
  * @return alignment of the paragraph
  */
-fun P.alignment(): JcEnumeration = pPr?.jc?.`val` ?: JcEnumeration.LEFT
+fun P.alignment(): Alignment = pPr?.jc?.`val`?.let { jc ->
+    Alignment.entries.first { it.value == jc }
+} ?: Alignment.LEFT
 
 /**
  * @return [ParagraphSpacing] paragraph spacing

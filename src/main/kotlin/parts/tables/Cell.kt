@@ -1,5 +1,6 @@
 package io.github.alexmaryin.docxktm.parts.tables
 
+import io.github.alexmaryin.docxktm.docxFactory
 import io.github.alexmaryin.docxktm.models.CellStyle
 import io.github.alexmaryin.docxktm.models.toCTBorder
 import io.github.alexmaryin.docxktm.models.toTblWidth
@@ -9,31 +10,31 @@ import java.math.BigInteger
 
 internal class Cell(style: CellStyle?) : ContentProvider {
 
-    private val cell = io.github.alexmaryin.docxktm.docxFactory.createTc()
+    private val cell = docxFactory.createTc()
 
     override fun <T : Any> add(element: T) {
         cell.content.add(element)
     }
 
     init {
-        style?.let {
-            val cellProperties = io.github.alexmaryin.docxktm.docxFactory.createTcPr()
-            it.spannedCells?.let {
-                cellProperties.gridSpan = io.github.alexmaryin.docxktm.docxFactory.createTcPrInnerGridSpan().apply {
+        style?.let { cellStyle ->
+            val cellProperties = docxFactory.createTcPr()
+            cellStyle.spannedCells?.let {
+                cellProperties.gridSpan = docxFactory.createTcPrInnerGridSpan().apply {
                     `val` = BigInteger.valueOf(it.toLong())
                 }
             }
-            if (it.noWrap) cellProperties.noWrap = io.github.alexmaryin.docxktm.docxFactory.createBooleanDefaultTrue()
-            it.borderStyle?.let {
-                cellProperties.tcBorders = io.github.alexmaryin.docxktm.docxFactory.createTcPrInnerTcBorders().apply {
+            if (cellStyle.noWrap) cellProperties.noWrap = docxFactory.createBooleanDefaultTrue()
+            cellStyle.borderStyle?.let {
+                cellProperties.tcBorders = docxFactory.createTcPrInnerTcBorders().apply {
                     top = it.top?.toCTBorder()
                     bottom = it.bottom?.toCTBorder()
                     left = it.left?.toCTBorder()
                     right = it.right?.toCTBorder()
                 }
             }
-            it.padding?.let {
-                cellProperties.tcMar = io.github.alexmaryin.docxktm.docxFactory.createTcMar().apply {
+            cellStyle.padding?.let {
+                cellProperties.tcMar = docxFactory.createTcMar().apply {
                     top = it.top.toTblWidth()
                     bottom = it.bottom.toTblWidth()
                     left = it.left.toTblWidth()
@@ -41,9 +42,9 @@ internal class Cell(style: CellStyle?) : ContentProvider {
                 }
             }
             cellProperties.tcW
-            cellProperties.tcW = it.width.toTblWidth()
-            cellProperties.textDirection = io.github.alexmaryin.docxktm.docxFactory.createTextDirection().apply { `val` = it.textDirection.xml }
-            cellProperties.vAlign = io.github.alexmaryin.docxktm.docxFactory.createCTVerticalJc().apply { `val` = it.verticalAlign }
+            cellProperties.tcW = cellStyle.width.toTblWidth()
+            cellProperties.textDirection = docxFactory.createTextDirection().apply { `val` = cellStyle.textDirection.xml }
+            cellProperties.vAlign = docxFactory.createCTVerticalJc().apply { `val` = cellStyle.verticalAlign.value }
             cell.tcPr = cellProperties
         }
     }

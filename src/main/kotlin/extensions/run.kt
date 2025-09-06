@@ -1,5 +1,6 @@
 package io.github.alexmaryin.docxktm.extensions
 
+import io.github.alexmaryin.docxktm.docxFactory
 import io.github.alexmaryin.docxktm.models.TextStyle
 import org.docx4j.wml.BooleanDefaultTrue
 import org.docx4j.wml.Color
@@ -22,7 +23,7 @@ fun RPr.applyProperties(style: TextStyle) = apply {
     if (style.small) smallCaps = BooleanDefaultTrue()
     if (style.doubleStrike) dstrike = BooleanDefaultTrue()
     if (style.strike) strike = BooleanDefaultTrue()
-    style.underlined?.let { u = io.github.alexmaryin.docxktm.docxFactory.createU().apply { `val` = it } }
-    style.size?.let { sz = io.github.alexmaryin.docxktm.docxFactory.createHpsMeasure().apply { `val` = BigInteger.valueOf(it * 2L) } }
+    style.underlined?.let { u = docxFactory.createU().apply { `val` = it.value } }
+    style.size?.let { sz = docxFactory.createHpsMeasure().apply { `val` = BigInteger.valueOf(it * 2L) } }
     color = Color().apply { `val` = style.color.name }
 }

@@ -7,7 +7,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class DocxTemplatesTest {
+class MVELTemplatesTest {
 
     private val simpleDict = hashMapOf(
         "name" to "Alex",
@@ -26,7 +26,8 @@ class DocxTemplatesTest {
 
     @Test
     fun `Simple docx template should return doc with merged fields`() {
-        DocxOpen(Paths.TEST_DOCX_DIR + "template.docx", "merged_result.docx") {
+        DocxOpen(Paths.TEMPLATES_DIR + "basic_template.docx",
+            Paths.TEST_DOCX_DIR + "merged_result.docx") {
             body {
                 mergeTemplate(simpleDict)
             }
@@ -43,7 +44,8 @@ class DocxTemplatesTest {
 
     @Test
     fun `Rich template should return doc with merged fields`() {
-        DocxOpen(Paths.TEST_DOCX_DIR + "template2.docx", "merged_result2.docx") {
+        DocxOpen(Paths.TEMPLATES_DIR + "template2.docx",
+            Paths.TEST_DOCX_DIR + "merged_result2.docx") {
             body {
                 mergeRichTemplate(richDict)
             }
