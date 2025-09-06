@@ -1,5 +1,6 @@
 package io.github.alexmaryin.docxktm.parts.tables
 
+import io.github.alexmaryin.docxktm.docxFactory
 import io.github.alexmaryin.docxktm.models.CellStyle
 import io.github.alexmaryin.docxktm.models.RowStyle
 import io.github.alexmaryin.docxktm.models.TextStyle
@@ -11,7 +12,7 @@ import org.docx4j.wml.Tr
 import java.math.BigInteger
 
 class Row(style: RowStyle?) : ContentProvider {
-    private val row = io.github.alexmaryin.docxktm.docxFactory.createTr()
+    private val row = docxFactory.createTr()
 
     override fun <T : Any> add(element: T) {
         row.content.add(element)
@@ -19,25 +20,25 @@ class Row(style: RowStyle?) : ContentProvider {
 
     init {
         style?.let {
-            val rowProperties = io.github.alexmaryin.docxktm.docxFactory.createTrPr()
+            val rowProperties = docxFactory.createTrPr()
             with(rowProperties.cnfStyleOrDivIdOrGridBefore) {
                 add(
-                    io.github.alexmaryin.docxktm.docxFactory.createCTTrPrBaseTrHeight(io.github.alexmaryin.docxktm.docxFactory.createCTHeight().apply {
-                        hRule = it.height.type
+                    docxFactory.createCTTrPrBaseTrHeight(docxFactory.createCTHeight().apply {
+                        hRule = it.height.type.value
                         `val` = BigInteger.valueOf(it.height.value)
                     })
                 )
                 add(
-                    io.github.alexmaryin.docxktm.docxFactory.createCTTrPrBaseJc(io.github.alexmaryin.docxktm.docxFactory.createJc().apply { `val` = it.alignment })
+                    docxFactory.createCTTrPrBaseJc(docxFactory.createJc().apply { `val` = it.alignment.value })
                 )
                 add(
-                    io.github.alexmaryin.docxktm.docxFactory.createCTTrPrBaseTblCellSpacing(io.github.alexmaryin.docxktm.docxFactory.createTblWidth().apply {
+                    docxFactory.createCTTrPrBaseTblCellSpacing(docxFactory.createTblWidth().apply {
                         type = it.padding.type
                         w = BigInteger.valueOf(it.padding.value)
                     })
                 )
                 if (it.headerRow) add(
-                    io.github.alexmaryin.docxktm.docxFactory.createCTTrPrBaseTblHeader(io.github.alexmaryin.docxktm.docxFactory.createBooleanDefaultTrue())
+                    docxFactory.createCTTrPrBaseTblHeader(docxFactory.createBooleanDefaultTrue())
                 )
             }
             row.trPr = rowProperties

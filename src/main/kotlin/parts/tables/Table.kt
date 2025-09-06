@@ -11,22 +11,22 @@ class Table(style: TableStyle?) {
     private val table: Tbl = docxFactory.createTbl()
 
     init {
-        style?.let {
+        style?.let { borderStyle ->
             val tableProperties = docxFactory.createTblPr()
             tableProperties.tblBorders = docxFactory.createTblBorders().apply {
-                it.borders.bottom?.let { bottom = it.toCTBorder() }
-                it.borders.top?.let { top = it.toCTBorder() }
-                it.borders.left?.let { left = it.toCTBorder() }
-                it.borders.right?.let { right = it.toCTBorder() }
-                it.borders.horizontalEdges?.let { insideH = it.toCTBorder() }
-                it.borders.verticalEdges?.let { insideV = it.toCTBorder() }
+                borderStyle.borders.bottom?.let { bottom = it.toCTBorder() }
+                borderStyle.borders.top?.let { top = it.toCTBorder() }
+                borderStyle.borders.left?.let { left = it.toCTBorder() }
+                borderStyle.borders.right?.let { right = it.toCTBorder() }
+                borderStyle.borders.horizontalEdges?.let { insideH = it.toCTBorder() }
+                borderStyle.borders.verticalEdges?.let { insideV = it.toCTBorder() }
             }
             tableProperties.tblLayout = docxFactory.createCTTblLayoutType().apply {
-                type = it.layoutType
+                type = borderStyle.layoutType.value
             }
             tableProperties.tblW = docxFactory.createTblWidth().apply {
-                type = it.width.type
-                w = BigInteger.valueOf(it.width.value)
+                type = borderStyle.width.type
+                w = BigInteger.valueOf(borderStyle.width.value)
             }
             table.tblPr = tableProperties
         }

@@ -1,5 +1,6 @@
 package io.github.alexmaryin.docxktm.parts
 
+import io.github.alexmaryin.docxktm.docxFactory
 import io.github.alexmaryin.docxktm.extensions.applyProperties
 import io.github.alexmaryin.docxktm.models.*
 import io.github.alexmaryin.docxktm.parts.tables.Table
@@ -31,13 +32,13 @@ fun ContentProvider.paragraph(
  * main block making a new text run inside the paragraph
  */
 fun ParagraphContent.text(text: String, style: TextStyle = normalTextStyle, breakLine: Boolean = false) {
-    val runBlock = io.github.alexmaryin.docxktm.docxFactory.createR()
-    val textBlock = io.github.alexmaryin.docxktm.docxFactory.createText()
+    val runBlock = docxFactory.createR()
+    val textBlock = docxFactory.createText()
 
     textBlock.value = text
     runBlock.content.add(textBlock)
-    runBlock.rPr = io.github.alexmaryin.docxktm.docxFactory.createRPr().applyProperties(style)
-    if (breakLine) runBlock.content.add(io.github.alexmaryin.docxktm.docxFactory.createBr())
+    runBlock.rPr = docxFactory.createRPr().applyProperties(style)
+    if (breakLine) runBlock.content.add(docxFactory.createBr())
 
     add(runBlock)
 }
@@ -59,10 +60,10 @@ fun ContentProvider.table(
 /**
  * main block putting a new image in the content block
  */
-context(Body)
+context(body: Body)
 fun ParagraphContent.imageFromFile(file: WordImage) {
-    val runBlock = io.github.alexmaryin.docxktm.docxFactory.createR()
-    val imagePart = BinaryPartAbstractImage.createImagePart(this@Body.document, file.bytes)
+    val runBlock = docxFactory.createR()
+    val imagePart = BinaryPartAbstractImage.createImagePart(body.document, file.bytes)
     val info = ImageIO.read(file.bytes.inputStream())
     val originWidthPx = info.width
     val originHeightPx = info.height
@@ -117,8 +118,8 @@ fun ParagraphContent.imageFromFile(file: WordImage) {
         )
     }
 
-    val drawing = io.github.alexmaryin.docxktm.docxFactory.createDrawing()
+    val drawing = docxFactory.createDrawing()
     drawing.anchorOrInline.add(inline)
     runBlock.content.add(drawing)
-    this.add(runBlock)
+    add(runBlock)
 }

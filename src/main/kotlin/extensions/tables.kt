@@ -10,9 +10,9 @@ import org.docx4j.wml.*
  */
 internal inline fun <reified T : Any> List<Any>.getDocxElements(): List<T> =
     mapNotNull {
-        when {
-            it is T -> it
-            it is JAXBElement<*> && it.value is T -> it.value as T
+        when (it) {
+            is T -> it
+            is JAXBElement<*> if it.value is T -> it.value as T
             else -> null
         }
     }

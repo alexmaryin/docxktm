@@ -58,13 +58,10 @@ class Body(val document: WordprocessingMLPackage) : ContentProvider {
         val jc = document.mainDocumentPart.jaxbContext
         val templateString = XmlUtils.marshaltoString(document.mainDocumentPart.jaxbElement, true, false, jc)
         val mergedString = templateString.replace(Regex("\\$\\{(.*?)}")) {
-            println("match ${it.value}")
             val expression = it.groups[1]?.value?.replace(Regex("<[^>]*>"), "")
-            println("cleared expression $expression")
             val value = try {
                 eval(expression, dict).toString()
-            } catch (e: CompileException) { "" }
-            println("evaluated $value")
+            } catch (_: CompileException) { "" }
             value
         }
 

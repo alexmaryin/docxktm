@@ -21,14 +21,14 @@ class Paragraph(style: ParagraphStyle?) : ContentProvider, ParagraphContent {
     fun getP(): P = paragraph
 
     init {
-        style?.let {
+        style?.let { paragraphStyle ->
             val paragraphProperties = docxFactory.createPPr()
-            paragraphProperties.pStyle = docxFactory.createPPrBasePStyle().apply { `val` = it.styleName }
-            paragraphProperties.jc = docxFactory.createJc().apply { `val` = it.alignment }
+            paragraphProperties.pStyle = docxFactory.createPPrBasePStyle().apply { `val` = paragraphStyle.styleName }
+            paragraphProperties.jc = docxFactory.createJc().apply { `val` = paragraphStyle.alignment.value }
             paragraphProperties.spacing = docxFactory.createPPrBaseSpacing().apply {
-                it.spacing.after?.let { after = BigInteger.valueOf(it.ptToTwips()) }
-                it.spacing.before?.let { before = BigInteger.valueOf(it.ptToTwips()) }
-                it.spacing.between?.let { line = BigInteger.valueOf(it.ptToTwips()) }
+                paragraphStyle.spacing.after?.let { after = BigInteger.valueOf(it.ptToTwips()) }
+                paragraphStyle.spacing.before?.let { before = BigInteger.valueOf(it.ptToTwips()) }
+                paragraphStyle.spacing.between?.let { line = BigInteger.valueOf(it.ptToTwips()) }
             }
             paragraph.pPr = paragraphProperties
         }

@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.0"
+    kotlin("jvm") version "2.2.10"
     id("org.jetbrains.dokka") version "1.8.20"
     id("maven-publish")
 }
@@ -10,7 +10,7 @@ repositories {
 }
 
 group = "io.github.alexmaryin"
-version = "1.1.2"
+version = "1.2.0"
 
 dependencies {
     api("org.docx4j:docx4j-JAXB-ReferenceImpl:11.5.4")
@@ -26,7 +26,7 @@ publishing {
 
             groupId = "io.github.alexmaryin"
             artifactId = "docxktm"
-            version = "1.1.2"
+            version = "1.2.0"
         }
     }
 }
@@ -36,12 +36,11 @@ tasks.test {
     useJUnitPlatform()
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
-}
-
 kotlin {
     jvmToolchain(17)
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-parameters")
+    }
 }
 java {
     withSourcesJar()

@@ -26,10 +26,10 @@ class DocxTemplateTest {
             DocxNew(Paths.TEMPLATES_DIR + "template.docx") {
                 body {
                     paragraph {
-                        text("This template is made by \${name} for testing \${library} library.")
+                        text($$"This template is made by ${name} for testing ${library} library.")
                     }
                     paragraph {
-                        text("Today is: \${today}.")
+                        text($$"Today is: ${today}.")
                     }
                 }
             }
@@ -38,13 +38,13 @@ class DocxTemplateTest {
             DocxNew(Paths.TEMPLATES_DIR + "default_filler_template.docx") {
                 body {
                     paragraph {
-                        text("Hello \${name}, welcome to \${place}.")
+                        text($$"Hello ${name}, welcome to ${place}.")
                     }
                     paragraph {
-                        text("Your age is \${age} and status is \${status}.")
+                        text($$"Your age is ${age} and status is ${status}.")
                     }
                     paragraph {
-                        text("Missing field: \${missing}.")
+                        text($$"Missing field: ${missing}.")
                     }
                 }
             }

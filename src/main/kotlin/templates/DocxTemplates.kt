@@ -44,6 +44,20 @@ fun WordprocessingMLPackage.processTemplate(replacements: Map<String, String>, d
  *     "key" to "value"
  *     "key2" to "value2"
  *     "key3" to "value3", etc.
+ *
+ * After "value" you may use [with] infix fun to define two variants
+ * of custom formatting:
+ *
+ *[io.github.alexmaryin.docxktm.values.NumberFormat] for Number types
+ *
+ *[io.github.alexmaryin.docxktm.values.DateFormat] for LocalDate or LocalDateTime types
+ *
+ *or enum [io.github.alexmaryin.docxktm.values.CurrencyFormat] for Number types
+ * with RUB, USD, EUR or CHF variants
+ *
+ *      "key" to 1234.12345 with NumberFormat("0#,###")
+ *      "key" to today() with DateFormat("dd MMMM yyyy")
+ *      "key" to 2555.99 with CurrencyFormat.USD
  */
 fun DocxTemplate(
     templateFilename: String,

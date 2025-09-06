@@ -1,6 +1,5 @@
 package io.github.alexmaryin.docxktm.parts
 
-import io.github.alexmaryin.docxktm.dsl.DocxDsl
 import org.docx4j.jaxb.Context
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage
 import org.docx4j.openpackaging.parts.PartName
