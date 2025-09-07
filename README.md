@@ -1,6 +1,6 @@
 # DocxKtm
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Maven Central](https://img.shields.io/maven-central/v/io.github.alexmaryin/docxktm)](https://search.maven.org/search?q=g:io.github.alexmaryin%20AND%20a:docxktm) ![Kotlin](https://img.shields.io/badge/Kotlin-2.2.10-7F52FF.svg?logo=kotlin)
 
 `DocxKtm` is a powerful and intuitive Kotlin DSL (Domain-Specific Language) for creating and manipulating Microsoft Word `.docx` files. Built as a wrapper around the robust `docx4j` Java library, `DocxKtm` simplifies document generation by providing a clean, readable, and expressive API, allowing you to define complex documents with idiomatic Kotlin code.
 
@@ -42,7 +42,7 @@ dependencies {
 <dependency>
     <groupId>io.github.alexmaryin</groupId>
     <artifactId>docxktm</artifactId>
-    <version>1.0.0</version> <!-- Replace with the latest version -->
+    <version>1.2.0</version> <!-- Replace with the latest version -->
 </dependency>
 ```
 
