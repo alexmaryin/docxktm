@@ -5,6 +5,7 @@ build/
 !**/src/test/**/build/
 prv.key
 local.properties
+gradle.properties
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

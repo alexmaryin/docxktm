@@ -1,7 +1,6 @@
 plugins {
     kotlin("jvm") version "2.2.10"
-    id("org.jetbrains.dokka") version "1.8.20"
-    id("maven-publish")
+    id("com.vanniktech.maven.publish") version "0.34.0"
 }
 
 repositories {
@@ -19,18 +18,34 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
-
-            groupId = "io.github.alexmaryin"
-            artifactId = "docxktm"
-            version = "1.2.0"
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+    coordinates(group.toString(), "docxktm", version.toString())
+    pom {
+        name = "DocxKtm"
+        description = "Create, open edit docx files, populate templates with intuitive DSL"
+        inceptionYear = "2025"
+        url = "https://github.com/alexmaryin/docxktm"
+        licenses {
+            license {
+                name = "Apache 2.0"
+                url = "http://www.apache.org/licenses/LICENSE-2.0"
+            }
         }
+        developers {
+            developer {
+                id = "alexmaryin"
+                name = "Alex Maryin"
+                email = "java.ul@gmail.com"
+            }
+        }
+        scm {
+            url = "https://github.com/alexmaryin/docxktm"
+        }
+        properties.put("kotlin.minimum.version", "2.2.10")
     }
 }
-
 
 tasks.test {
     useJUnitPlatform()
@@ -44,5 +59,4 @@ kotlin {
 }
 java {
     withSourcesJar()
-    withJavadocJar()
 }
