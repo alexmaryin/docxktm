@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.2.10"
+    kotlin("plugin.serialization") version ("2.2.10")
     id("com.vanniktech.maven.publish") version "0.34.0"
 }
 
@@ -9,11 +10,12 @@ repositories {
 }
 
 group = "io.github.alexmaryin"
-version = "1.2.0"
+version = "1.3.0"
 
 dependencies {
     api("org.docx4j:docx4j-JAXB-ReferenceImpl:11.5.4")
     implementation("org.mvel:mvel2:2.5.0.Final")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 
     testImplementation(kotlin("test"))
 }

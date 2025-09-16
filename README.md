@@ -14,7 +14,8 @@ Whether you need to generate reports, invoices, or any other structured document
 *   **Powerful Templating:**
     *   Simple key-value placeholder replacement (`${variable}`).
     *   Advanced type-safe templating for numbers, dates, and currencies with custom formatting.
-    *   MVEL-based templating for complex object graphs.
+    *   **Rich MVEL2 syntax support** for complex expressions, conditional logic, and loops within templates.
+    *   **Dynamic table population** from collections of objects or JSON strings.
 *   **Comprehensive Styling:** Apply styles to text, paragraphs, tables, rows, and cells.
 *   **Full `docx4j` Access:** Drop down to the underlying `docx4j` API for advanced or unsupported features.
 
@@ -220,48 +221,102 @@ footer(ParagraphStyle(alignment = Alignment.RIGHT)) {
 }
 ```
 
-## Templating
+## Advanced Templating
 
-`DocxKtm` offers a sophisticated templating engine. Create a `.docx` file with placeholders like `${my_variable}` and populate it dynamically.
+`DocxKtm` offers a sophisticated templating engine. Create a `.docx` file with placeholders and populate it dynamically.
 
-### Advanced Type-Safe Templating (Recommended)
+### MVEL2 Expression Language
 
-This is the most powerful and safe way to handle templates, with built-in support for formatting numbers, dates, and currencies.
+Take full control of your templates with the MVEL2 expression language. This allows for complex logic, transformations, and data manipulation directly within your `.docx` template.
 
-**Template file `template.docx`:**
+**Template file `mvel_template.docx`:**
 ```
-> Invoice for \${customer_name}.
-> Date: \${order_date}
-> Total Amount: \${total_amount}
+> Customer: ${customer.name.toUpperCase()}
+> 
+> @if{customer.orders.size() > 0}
+>   Recent Orders:
+>   @foreach{order : customer.orders}
+>     - Order #${order.id} - Amount: ${new java.text.DecimalFormat('$#,##0.00').format(order.amount)}
+>   @end{}
+> @else{}
+>   No recent orders.
+> @end{}
 ```
 
 **Kotlin code:**
 
 ```kotlin
 import io.github.alexmaryin.docxktm.templates.DocxTemplate
-import io.github.alexmaryin.docxktm.values.CurrencyFormat
-import io.github.alexmaryin.docxktm.values.DateFormat
-import io.github.alexmaryin.docxktm.values.NumberFormat
-import java.time.LocalDate
 
-fun generateInvoice() {
-    DocxTemplate(
-        templateFilename = "templates/invoice_template.docx",
-        outputFilename = "output/invoice_001.docx"
-    ) {
-        "customer_name" to "John Doe"
+data class Customer(val name: String, val orders: List<Order>)
+data class Order(val id: Int, val amount: Double)
 
-        // Format dates using `with DateFormat`
-        "order_date" to LocalDate.now() with DateFormat("MMMM dd, yyyy")
+fun generateMvelReport() {
+    val customer = Customer(
+        name = "John Doe",
+        orders = listOf(Order(1, 120.50), Order(2, 75.00))
+    )
 
-        // Format numbers and currencies
-        "total_amount" to 12345.678 with CurrencyFormat.USD // -> $12,345.68
-        
-        // Or use a custom number format
-        "tax_rate" to 0.0825 with NumberFormat("#0.00%") // -> 8.25%
+    DocxTemplate("mvel_template.docx", "mvel_report.docx") {
+        "customer" to customer
+    }
+}
+```
 
-        // Numbers and dates without a format will use a sensible default
-        "order_id" to 98765 // -> 98 765 (default number format)
+### Dynamic Table Population
+
+Populate tables dynamically from a list of objects or a JSON string. `DocxKtm` automatically creates new rows for each item in the collection.
+
+#### From a Collection of Objects
+
+Define a table with a single data row and use the `@{collection_name}` syntax in the first cell of that row.
+
+**Template file `table_template.docx`:**
+
+| Product Name | Quantity | Price |
+| --- | --- | --- |
+| `@{products}` | `${name}` | `${quantity}` | `${price}` |
+
+**Kotlin code:**
+
+```kotlin
+import io.github.alexmaryin.docxktm.templates.DocxTemplate
+
+data class Product(val name: String, val quantity: Int, val price: Double)
+
+fun generateProductTable() {
+    val products = listOf(
+        Product("Laptop", 1, 1200.00),
+        Product("Mouse", 2, 25.50),
+        Product("Keyboard", 1, 75.00)
+    )
+
+    DocxTemplate("table_template.docx", "product_table.docx") {
+        "products" to products
+    }
+}
+```
+
+#### From a JSON String
+
+You can also populate a table directly from a JSON string representing an array of objects.
+
+**Kotlin code:**
+
+```kotlin
+import io.github.alexmaryin.docxktm.templates.DocxTemplate
+
+fun generateProductTableFromJson() {
+    val productsJson = '''
+        [
+            {"name": "Laptop", "quantity": 1, "price": 1200.00},
+            {"name": "Mouse", "quantity": 2, "price": 25.50},
+            {"name": "Keyboard", "quantity": 1, "price": 75.00}
+        ]
+    '''
+
+    DocxTemplate("table_template.docx", "product_table_from_json.docx") {
+        "products" to productsJson
     }
 }
 ```
