@@ -1,8 +1,7 @@
 package io.github.alexmaryin.docxktm
 
 import io.github.alexmaryin.docxktm.extensions.body
-import io.github.alexmaryin.docxktm.templates.mergeTemplateJSON
-import io.github.alexmaryin.docxktm.templates.mergeTemplateMap
+import io.github.alexmaryin.docxktm.templates.DocxTemplate
 import io.github.alexmaryin.docxktm.templates.mergeTemplateStrMap
 import io.github.alexmaryin.docxktm.values.Paths
 import java.time.LocalDate
@@ -80,11 +79,11 @@ class MVELTemplatesTest {
 
     @Test
     fun `Rich template should return doc with merged fields`() {
-        DocxOpen(
-            Paths.TEMPLATES_DIR + "template2.docx",
+        DocxTemplate(
+            Paths.TEMPLATES_DIR + "template_rich.docx",
             Paths.TEST_DOCX_DIR + "merged_result2.docx"
         ) {
-            body { mergeTemplateMap(richDict) }
+            fromMap(richDict)
         }
         DocxOpen(Paths.TEST_DOCX_DIR + "merged_result2.docx", autoSave = false) {
             body {
@@ -100,11 +99,11 @@ class MVELTemplatesTest {
 
     @Test
     fun `MVEL2 template with expressions and merged fields`() {
-        DocxOpen(
+        DocxTemplate(
             Paths.TEMPLATES_DIR + "template_MVEL2.docx",
             Paths.TEST_DOCX_DIR + "merged_result_MVEL2.docx"
         ) {
-            body { mergeTemplateJSON(sampleJson) }
+            fromJsonString(sampleJson)
         }
         DocxOpen(Paths.TEST_DOCX_DIR + "merged_result_MVEL2.docx", autoSave = false) {
             body {
@@ -137,11 +136,29 @@ class MVELTemplatesTest {
 
     @Test
     fun `MVEL2 template with expressions and merged fields with tables`() {
-        DocxOpen(
+        DocxTemplate(
             Paths.TEMPLATES_DIR + "template_MVEL2_table.docx",
             Paths.TEST_DOCX_DIR + "merged_result_MVEL2_table.docx"
         ) {
-            body { mergeTemplateJSON(sampleJson) }
+            fromJsonString(sampleJson)
+        }
+    }
+
+    @Test
+    fun `MVEL2 template with complicated statements`() {
+
+        data class Order(val id: Int, val amount: Double)
+        data class Customer(val name: String, val orders: List<Order>)
+
+        DocxTemplate(
+            Paths.TEMPLATES_DIR + "mvel_gpt.docx",
+            Paths.TEST_DOCX_DIR + "mvel_gpt_output.docx"
+        ) {
+            val customer = Customer(
+                name = "John Doe",
+                orders = listOf(Order(1, 120.50), Order(2, 75.00))
+            )
+            "customer" to customer
         }
     }
 }

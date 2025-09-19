@@ -2,15 +2,13 @@ package io.github.alexmaryin.docxktm.templates
 
 import io.github.alexmaryin.docxktm.extensions.getRows
 import io.github.alexmaryin.docxktm.parts.Body
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
 import org.docx4j.XmlUtils
 import org.docx4j.wml.Document
 import org.docx4j.wml.Tr
-import org.mvel2.CompileException
-import org.mvel2.MVEL
+import org.mvel2.integration.VariableResolver
+import org.mvel2.integration.impl.MapVariableResolverFactory
+import org.mvel2.integration.impl.SimpleValueResolver
 import org.mvel2.templates.TemplateCompiler
 import org.mvel2.templates.TemplateRuntime
 
@@ -23,28 +21,6 @@ import org.mvel2.templates.TemplateRuntime
  */
 fun Body.mergeTemplateStrMap(dict: Map<String, String>) {
     document.mainDocumentPart.variableReplace(dict)
-}
-
-/**
- * Populates docx template with fields from dictionary of any types including
- * data classes of Kotlin, any Java classes.
- *
- * Field for population should be bounded with ```${field_name}``` or ```${class.field_name}``` symbols
- */
-fun Body.mergeTemplateMap(dict: Map<String, Any>) {
-    val jc = document.mainDocumentPart.jaxbContext
-    val templateString = XmlUtils.marshaltoString(document.mainDocumentPart.jaxbElement, true, false, jc)
-    val mergedString = templateString.replace(Regex("\\$\\{(.*?)}")) {
-        val expression = it.groups[1]?.value
-        val value = try {
-            MVEL.eval(expression, dict).toString()
-        } catch (_: CompileException) {
-            ""
-        }
-        value
-    }
-
-    document.mainDocumentPart.jaxbElement = XmlUtils.unwrap(XmlUtils.unmarshalString(mergedString, jc)) as Document
 }
 
 private val mvelForeach = Regex("""@foreach\s*\{\s*([^}]+?)\s*}""")
@@ -62,26 +38,46 @@ private val mvelEnd = Regex("""@end\s*\{\s*}""")
  * For arrays should be used MVEL2 constriction for loop: @foreach { item : items } ..... @end{}
  * For details see documentation
  */
-fun Body.mergeTemplateJSON(jsonElement: JsonElement) {
-    //process tables first
+internal fun Body.mergeTemplateJSON(jsonElement: JsonElement) =
+    mergeTemplateMap(jsonElement.toPlainMap())
+
+
+internal fun resolverFactory(dict: Map<String, Any?>, filler: String) = object : MapVariableResolverFactory(dict) {
+    override fun isResolveable(name: String?) = true
+    override fun getVariableResolver(name: String?): VariableResolver? {
+        if (!dict.containsKey(name)) return SimpleValueResolver(filler)
+        return super.getVariableResolver(name)
+    }
+}
+
+/**
+ * Populates docx template with fields from dictionary of any types including
+ * data classes of Kotlin, any Java classes. Enums should use suffix ```.name()``` inside template to work.
+ *
+ * Field for population should be bounded with ```${field_name}``` or ```${class.field_name}``` symbols
+ *
+ * Templates may contain MVEL2 statements
+ */
+internal fun Body.mergeTemplateMap(dict: Map<String, Any>, filler: String = "") {
     val jc = document.mainDocumentPart.jaxbContext
+    val templateString = XmlUtils.marshaltoString(document.mainDocumentPart.jaxbElement, true, false, jc)
+    //process tables first
     for (table in getTables()) {
         for (row in table.getRows()) {
             val rowXml = XmlUtils.marshaltoString(row, true, false, jc)
             // process row if it contains @foreach { item : items } MVEL2 instruction
             mvelForeach.find(rowXml)?.let { matchResult ->
-
                 val loopDefinition = matchResult.groupValues[1] // extract { item : items } names
                 val (itemVar, collectionVar) = loopDefinition.split(":").map { it.trim() }
-
-                jsonElement.findJsonArray(collectionVar)?.let { array ->
+                dict.findCollection(collectionVar)?.let { array ->
                     val templateRowXml = rowXml.replace(mvelForeach, "").replace(mvelEnd, "")
                     val newRows = buildList {
                         for (item in array) {
-                            val itemContext = mapOf(itemVar to item.toPlain())
+                            val itemContext = mapOf(itemVar to item)
                             val newRowXml = TemplateRuntime.execute(
                                 TemplateCompiler.compileTemplate(templateRowXml),
-                                itemContext
+                                itemContext,
+                                resolverFactory(itemContext, filler)
                             ).toString()
                             val newRow = XmlUtils.unmarshalString(newRowXml, jc, Tr::class.java) as Tr
                             add(newRow)
@@ -95,22 +91,8 @@ fun Body.mergeTemplateJSON(jsonElement: JsonElement) {
         }
     }
     // process other merged fields outside any table
-    val templateString = XmlUtils.marshaltoString(document.mainDocumentPart.jaxbElement, true, false, jc)
     val compiledTemplate = TemplateCompiler.compileTemplate(templateString)
-    val mergedString = TemplateRuntime.execute(compiledTemplate, jsonElement.toPlain()).toString()
+    val factory = resolverFactory(dict, filler)
+    val mergedString = TemplateRuntime.execute(compiledTemplate, dict, factory).toString()
     document.mainDocumentPart.jaxbElement = XmlUtils.unwrap(XmlUtils.unmarshalString(mergedString, jc)) as Document
-}
-
-/**
- * Populates docx template with JSON string
- * Actually, deserializing string into [JsonElement] and ping to [mergeTemplateJSON] variant
- * with JsonElement as parameter
- **/
-fun Body.mergeTemplateJSON(jsonString: String) {
-    val root = try {
-        Json.parseToJsonElement(jsonString)
-    } catch (_: SerializationException) {
-        JsonNull
-    }
-    mergeTemplateJSON(root)
 }

@@ -13,7 +13,7 @@ Whether you need to generate reports, invoices, or any other structured document
 *   **Rich Content:** Easily add and style paragraphs, text, tables, images, headers, and footers.
 *   **Powerful Templating:**
     *   Simple key-value placeholder replacement (`${variable}`).
-    *   Advanced type-safe templating for numbers, dates, and currencies with custom formatting.
+    *   Advanced type-safe templating for classes, numbers, dates, and currencies with custom formatting.
     *   **Rich MVEL2 syntax support** for complex expressions, conditional logic, and loops within templates.
     *   **Dynamic table population** from collections of objects or JSON strings.
 *   **Comprehensive Styling:** Apply styles to text, paragraphs, tables, rows, and cells.
@@ -32,7 +32,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.alexmaryin:docxktm:1.2.0") // Replace with the latest version
+    implementation("io.github.alexmaryin:docxktm:1.3.0") // Replace with the latest version
 }
 ```
 
@@ -43,7 +43,7 @@ dependencies {
 <dependency>
     <groupId>io.github.alexmaryin</groupId>
     <artifactId>docxktm</artifactId>
-    <version>1.2.0</version> <!-- Replace with the latest version -->
+    <version>1.3.0</version> <!-- Replace with the latest version -->
 </dependency>
 ```
 
@@ -269,13 +269,13 @@ Populate tables dynamically from a list of objects or a JSON string. `DocxKtm` a
 
 #### From a Collection of Objects
 
-Define a table with a single data row and use the `@{collection_name}` syntax in the first cell of that row.
+Define a table with a single data row and use the `@foreach {item: collection_name}` syntax in the first cell of that row.
 
 **Template file `table_template.docx`:**
 
-| Product Name | Quantity | Price |
-| --- | --- | --- |
-| `@{products}` | `${name}` | `${quantity}` | `${price}` |
+| Product Name                    | Quantity          | Price                 |
+|---------------------------------|-------------------|-----------------------|
+| `@foreach {product : products}` | `${product.name}` | `${product.quantity}` | `${product.price}` |
 
 **Kotlin code:**
 
