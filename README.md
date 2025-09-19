@@ -205,47 +205,108 @@ This feature uses the fastest algorithm provided by docx4j engine. To use it jus
     mergeTemplateStrMap(replacementsMap)
 ```
 
-## Advanced Templating
+## Advanced templating
 
-`DocxKtm` offers a sophisticated templating engine. Create a `.docx` file with placeholders and populate it dynamically.
-Entry point to create a template is `DocxTemplate` function where you may use any type of the following replacement builders:
+`DocxKtm` ships with a powerful, type-safe templating engine.  
+Design your `.docx` file once, drop `${placeholders}` anywhere (header, footer, table cell, text-box, etc.) and populate them at runtime with a single Kotlin DSL block.
+
+---
+
+### 1. Quick start
+
 ```kotlin
 DocxTemplate(
     templateFilename = "template.docx",
-    outputFilename = "output.docx",
-    filler = "no data" // <- it is the backup for missing keys, default is empty string
+    outputFilename  = "output.docx",
+    filler          = "n/a"          // default = empty string
 ) {
-    // ... single replacement variable, in docx template it will be ${name}
     "name" to "John Doe"
-    // ... or any number type
-    "value" to 12345.67
-    // ... or number type with custom formatting
-    "amount" to 12345.67 with NumberFormat("0#,###")
-    // ... or number type with currency formatting (library provides USD, RUB, EUR and CHF at the moment
-    "cost in USD" to 12345.67 with CurrencyFormat.USD
-    // ... or date type with custom formatting as well as date-time
-    "date" to LocalDate.now() with DateFormat("dd.MM.yyyy")
-    "date and time" to LocalDateTime.now() with DateFormat("dd.MM.yyyy HH:mm:ss")
-
-    // ... or use an injected map of replacements, and values may be any type. Literally Any including data classes like User above.
-    // NOTE: the replacement map should be the type of Map<String, Any> including nested maps or lists.
-    fromMap(mapOf("name" to "John Doe", "age" to 30, "items" to listOf(1, 2, 3)))
-    
-    // ... or use a predefined data class (java class) for replacements
-    // NOTE: if you want to use enums, your template should contain pattern like ${user.gender.name()}
-    val testUser = User(name = "Alex", age = gender = 41, Gender.MALE)
-    "user" to testUser
-    
-    // ... or use JSON string with replacements with primitive fields, nested objects and JSON arrays
-    val jsonString = """{order: {id: 123, customer: "Me", items: [{name: "Keyboard", price: 119.99}. {name: "Mouse", price: 49.99}]}}"""
-    fromJsonString(jsonString)
-    // ... or deserialized JSON Element with the same structure
-    val json = Json.parseToJsonElement(jsonString)
-    fromJson(json)
-    
-    // All these builders you may combine in the one block of code.
 }
 ```
+
+---
+
+### 2. Supported value types
+
+| Type                     | Example                                                                | Notes                        |
+|--------------------------|------------------------------------------------------------------------|------------------------------|
+| **Text**                 | `"title" to "Invoice #12"`                                             |                              |
+| **Numbers**              | `"qty" to 42`                                                          |                              |
+| **Custom number format** | `"total" to 12345.67 with NumberFormat("0#,###.00")`                   | Any `DecimalFormat` pattern  |
+| **Currency**             | `"price" to 99.99 with CurrencyFormat.USD`                             | Built-in: USD, EUR, RUB, CHF |
+| **Date**                 | `"shipDate" to LocalDate.now() with DateFormat("dd.MM.yyyy")`          |                              |
+| **Date-time**            | `"created" to LocalDateTime.now() with DateFormat("dd.MM.yyyy HH:mm")` |                              |
+
+---
+
+### 3. Bulk replacements
+
+#### 3.1 From a `Map<String,Any>`
+
+```kotlin
+fromMap(
+    mapOf(
+        "customer" to "Alice",
+        "age" to 30,
+        "items" to listOf(1, 2, 3)
+    )
+)
+```
+
+#### 3.2 From a data class
+
+```kotlin
+data class User(val name: String, val age: Int, val gender: Gender)
+
+val user = User("Alex", 41, Gender.MALE)
+"user" to user   // template: ${user.name}, ${user.age}, ${user.gender.name()}
+```
+
+#### 3.3 From JSON (String or JsonElement)
+
+```kotlin
+val json = """
+{
+  "order": {
+    "id": 123,
+    "customer": "Me",
+    "items": [
+      { "name": "Keyboard", "price": 119.99 },
+      { "name": "Mouse",   "price":  49.99 }
+    ]
+  }
+}
+"""
+
+fromJsonString(json)   // or fromJson(Json.parseToJsonElement(json))
+```
+
+---
+
+### 4. Mix & match
+
+All builders can live together in the same block:
+
+```kotlin
+DocxTemplate("tpl.docx", "out.docx") {
+    "reportTitle" to "Q2 Sales"
+    "total" to 9876.5 with CurrencyFormat.EUR
+    fromMap(mapOf("region" to "EMEA", "manager" to "Bo"))
+    fromJsonString("""{"note":"Approved by CFO"}""")
+}
+```
+
+---
+
+### 5. Tips for your template.docx
+
+* Use `${simpleKey}` for top-level values.
+* Use `${object.field}` for nested properties (map keys or data-class members).
+* For enums write `${user.gender.name()}`.
+* Placeholders inside tables, headers, footers, and text-boxes are all supported.
+* Missing keys render as the `filler` string (default: empty).
+
+---
 
 ### MVEL2 Expression Language
 
@@ -293,9 +354,9 @@ Define a table with a single data row and use the `@foreach {item: collection_na
 
 **Template file `table_template.docx`:**
 
-| Product Name                    | Quantity          | Price                 |
-|---------------------------------|-------------------|-----------------------|
-| `@foreach {product : products}` | `${product.name}` | `${product.quantity}` | `${product.price}` |
+| Product Name                                   | Quantity              | Price              |
+|------------------------------------------------|-----------------------|--------------------|
+| `@foreach{product : products} ${product.name}` | `${product.quantity}` | `${product.price}` |
 
 **Kotlin code:**
 
