@@ -13,8 +13,9 @@ Whether you need to generate reports, invoices, or any other structured document
 *   **Rich Content:** Easily add and style paragraphs, text, tables, images, headers, and footers.
 *   **Powerful Templating:**
     *   Simple key-value placeholder replacement (`${variable}`).
-    *   Advanced type-safe templating for numbers, dates, and currencies with custom formatting.
-    *   MVEL-based templating for complex object graphs.
+    *   Advanced type-safe templating for classes, numbers, dates, and currencies with custom formatting.
+    *   **Rich MVEL2 syntax support** for complex expressions, conditional logic, and loops within templates.
+    *   **Dynamic table population** from collections of objects or JSON strings.
 *   **Comprehensive Styling:** Apply styles to text, paragraphs, tables, rows, and cells.
 *   **Full `docx4j` Access:** Drop down to the underlying `docx4j` API for advanced or unsupported features.
 
@@ -31,7 +32,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.alexmaryin:docxktm:1.2.0") // Replace with the latest version
+    implementation("io.github.alexmaryin:docxktm:1.3.0") // Replace with the latest version
 }
 ```
 
@@ -42,7 +43,7 @@ dependencies {
 <dependency>
     <groupId>io.github.alexmaryin</groupId>
     <artifactId>docxktm</artifactId>
-    <version>1.2.0</version> <!-- Replace with the latest version -->
+    <version>1.3.0</version> <!-- Replace with the latest version -->
 </dependency>
 ```
 
@@ -53,11 +54,6 @@ dependencies {
 Use the `DocxNew` function to create a new document from scratch. The `body` block is the entry point for adding content.
 
 ```kotlin
-import io.github.alexmaryin.docxktm.DocxNew
-import io.github.alexmaryin.docxktm.extensions.body
-import io.github.alexmaryin.docxktm.parts.paragraph
-import io.github.alexmaryin.docxktm.parts.text
-
 fun main() {
     DocxNew("output/hello_world.docx") {
         body {
@@ -74,13 +70,6 @@ fun main() {
 Use `DocxOpen` to load an existing `.docx` file, modify it, and save the changes to a new file (or overwrite the original).
 
 ```kotlin
-import io.github.alexmaryin.docxktm.DocxOpen
-import io.github.alexmaryin.docxktm.extensions.body
-import io.github.alexmaryin.docxktm.parts.paragraph
-import io.github.alexmaryin.docxktm.parts.text
-import io.github.alexmaryin.docxktm.models.ParagraphStyle
-import io.github.alexmaryin.docxktm.values.Styles
-
 fun main() {
     DocxOpen("input.docx", "modified.docx") {
         body {
@@ -99,9 +88,6 @@ fun main() {
 The core of any document is its text. `DocxKtm` provides a simple way to add paragraphs and styled text runs.
 
 ```kotlin
-import io.github.alexmaryin.docxktm.models.*
-import io.github.alexmaryin.docxktm.values.*
-
 // ... inside body { ... }
 paragraph(ParagraphStyle(styleName = Styles.TITLE, alignment = Alignment.CENTER)) {
     text("Main Title")
@@ -126,10 +112,6 @@ paragraph {
 Create complex tables with full control over styling for the table, rows, and cells.
 
 ```kotlin
-import io.github.alexmaryin.docxktm.models.*
-import io.github.alexmaryin.docxktm.values.*
-import io.github.alexmaryin.docxktm.parts.table
-
 // ... inside body { ... }
 table(
     TableStyle(
@@ -149,8 +131,8 @@ table(
 
     // Data Row
     row {
-        cell { paragraph { text("Data 1.1") } }
-        cell { paragraph { text("Data 1.2") } }
+        textInCell("Data 1.1")
+        textInCell("Data 1.2")
     }
 
     // Row with spanned cells
@@ -169,9 +151,6 @@ table(
 Embed images from files and control their size and placement.
 
 ```kotlin
-import io.github.alexmaryin.docxktm.models.fromCmToEMU
-import io.github.alexmaryin.docxktm.parts.imageFromFile
-
 // ... inside body { ... }
 paragraph(ParagraphStyle(alignment = Alignment.CENTER)) {
     // Bind the image first to make it available to the document
@@ -198,11 +177,6 @@ paragraph {
 Add headers and footers to your document, including dynamic page numbers.
 
 ```kotlin
-import io.github.alexmaryin.docxktm.extensions.header
-import io.github.alexmaryin.docxktm.extensions.footer
-import io.github.alexmaryin.docxktm.models.ParagraphStyle
-import io.github.alexmaryin.docxktm.values.Alignment
-
 // ... inside DocxNew { ... }
 header(ParagraphStyle(alignment = Alignment.CENTER)) {
     text("My Document Header")
@@ -220,67 +194,185 @@ footer(ParagraphStyle(alignment = Alignment.RIGHT)) {
 }
 ```
 
-## Templating
 
-`DocxKtm` offers a sophisticated templating engine. Create a `.docx` file with placeholders like `${my_variable}` and populate it dynamically.
+## Simple Templating
 
-### Advanced Type-Safe Templating (Recommended)
-
-This is the most powerful and safe way to handle templates, with built-in support for formatting numbers, dates, and currencies.
-
-**Template file `template.docx`:**
+`DocxKtm` supports simple templating with placeholders in the format `${placeholder}`
+This feature uses the fastest algorithm provided by docx4j engine. To use it just write inside the body block of the opened document:
+```kotlin
+// ... inside body { ... }
+    val replacementsMap = mapOf("name" to "Alex", "age" to "41")
+    mergeTemplateStrMap(replacementsMap)
 ```
-> Invoice for \${customer_name}.
-> Date: \${order_date}
-> Total Amount: \${total_amount}
+
+## Advanced templating
+
+`DocxKtm` ships with a powerful, type-safe templating engine.  
+Design your `.docx` file once, drop `${placeholders}` anywhere (header, footer, table cell, text-box, etc.) and populate them at runtime with a single Kotlin DSL block.
+
+---
+
+### 1. Quick start
+
+```kotlin
+DocxTemplate(
+    templateFilename = "template.docx",
+    outputFilename  = "output.docx",
+    filler          = "n/a"          // default = empty string
+) {
+    "name" to "John Doe"
+}
+```
+
+---
+
+### 2. Supported value types
+
+| Type                     | Example                                                                | Notes                        |
+|--------------------------|------------------------------------------------------------------------|------------------------------|
+| **Text**                 | `"title" to "Invoice #12"`                                             |                              |
+| **Numbers**              | `"qty" to 42`                                                          |                              |
+| **Custom number format** | `"total" to 12345.67 with NumberFormat("0#,###.00")`                   | Any `DecimalFormat` pattern  |
+| **Currency**             | `"price" to 99.99 with CurrencyFormat.USD`                             | Built-in: USD, EUR, RUB, CHF |
+| **Date**                 | `"shipDate" to LocalDate.now() with DateFormat("dd.MM.yyyy")`          |                              |
+| **Date-time**            | `"created" to LocalDateTime.now() with DateFormat("dd.MM.yyyy HH:mm")` |                              |
+
+---
+
+### 3. Bulk replacements
+
+#### 3.1 From a `Map<String,Any>`
+
+```kotlin
+fromMap(
+    mapOf(
+        "customer" to "Alice",
+        "age" to 30,
+        "items" to listOf(1, 2, 3)
+    )
+)
+```
+
+#### 3.2 From a data class
+
+```kotlin
+data class User(val name: String, val age: Int, val gender: Gender)
+
+val user = User("Alex", 41, Gender.MALE)
+"user" to user   // template: ${user.name}, ${user.age}, ${user.gender.name()}
+```
+
+#### 3.3 From JSON (String or JsonElement)
+
+```kotlin
+val json = """
+{
+  "order": {
+    "id": 123,
+    "customer": "Me",
+    "items": [
+      { "name": "Keyboard", "price": 119.99 },
+      { "name": "Mouse",   "price":  49.99 }
+    ]
+  }
+}
+"""
+
+fromJsonString(json)   // or fromJson(Json.parseToJsonElement(json))
+```
+
+---
+
+### 4. Mix & match
+
+All builders can live together in the same block:
+
+```kotlin
+DocxTemplate("tpl.docx", "out.docx") {
+    "reportTitle" to "Q2 Sales"
+    "total" to 9876.5 with CurrencyFormat.EUR
+    fromMap(mapOf("region" to "EMEA", "manager" to "Bo"))
+    fromJsonString("""{"note":"Approved by CFO"}""")
+}
+```
+
+---
+
+### 5. Tips for your template.docx
+
+* Use `${simpleKey}` for top-level values.
+* Use `${object.field}` for nested properties (map keys or data-class members).
+* For enums write `${user.gender.name()}`.
+* Placeholders inside tables, headers, footers, and text-boxes are all supported.
+* Missing keys render as the `filler` string (default: empty).
+
+---
+
+### MVEL2 Expression Language
+
+Take full control of your templates with the MVEL2 expression language. This allows for complex logic, transformations, and data manipulation directly within your `.docx` template.
+
+**Template file `mvel_template.docx`:**
+```
+> Customer: ${customer.name.toUpperCase()}
+> 
+> @if{customer.orders != empty}
+>   Recent Orders:
+>   @foreach{order : customer.orders}
+>     - Order #${order.id} - Amount: ${order.amount}
+>   @end{}
+> @else{}
+>   No recent orders.
+> @end{}
 ```
 
 **Kotlin code:**
 
 ```kotlin
-import io.github.alexmaryin.docxktm.templates.DocxTemplate
-import io.github.alexmaryin.docxktm.values.CurrencyFormat
-import io.github.alexmaryin.docxktm.values.DateFormat
-import io.github.alexmaryin.docxktm.values.NumberFormat
-import java.time.LocalDate
+data class Customer(val name: String, val orders: List<Order>)
+data class Order(val id: Int, val amount: Double)
 
-fun generateInvoice() {
-    DocxTemplate(
-        templateFilename = "templates/invoice_template.docx",
-        outputFilename = "output/invoice_001.docx"
-    ) {
-        "customer_name" to "John Doe"
+fun generateMvelReport() {
+    val customer = Customer(
+        name = "John Doe",
+        orders = listOf(Order(1, 120.50), Order(2, 75.00))
+    )
 
-        // Format dates using `with DateFormat`
-        "order_date" to LocalDate.now() with DateFormat("MMMM dd, yyyy")
-
-        // Format numbers and currencies
-        "total_amount" to 12345.678 with CurrencyFormat.USD // -> $12,345.68
-        
-        // Or use a custom number format
-        "tax_rate" to 0.0825 with NumberFormat("#0.00%") // -> 8.25%
-
-        // Numbers and dates without a format will use a sensible default
-        "order_id" to 98765 // -> 98 765 (default number format)
+    DocxTemplate("mvel_template.docx", "mvel_report.docx") {
+        "customer" to customer
     }
 }
 ```
 
-### Simple String-based Templating
+### Dynamic Table Population
 
-For quick and simple replacements, you can use `mergeTemplate`.
+Populate tables dynamically from a list of objects or a JSON string. `DocxKtm` automatically creates new rows for each item in the collection.
+
+#### From a Collection of Objects
+
+Define a table with a single data row and use the `@foreach {item: collection_name}` syntax in the first cell of that row.
+
+**Template file `table_template.docx`:**
+
+| Product Name                                   | Quantity              | Price              |
+|------------------------------------------------|-----------------------|--------------------|
+| `@foreach{product : products} ${product.name}` | `${product.quantity}` | `${product.price}` |
+
+**Kotlin code:**
 
 ```kotlin
-import io.github.alexmaryin.docxktm.extensions.body
+data class Product(val name: String, val quantity: Int, val price: Double)
 
-// ... inside DocxOpen { ... }
-body {
-    val replacements = hashMapOf(
-        "customer_name" to "Jane Doe",
-        "order_date" to "2023-10-27",
-        "total_amount" to "$150.00"
+fun generateProductTable() {
+    val products = listOf(
+        Product("Laptop", 1, 1200.00),
+        Product("Mouse", 2, 25.50),
+        Product("Keyboard", 1, 75.00)
     )
-    mergeTemplate(replacements)
+
+    DocxTemplate("table_template.docx", "product_table.docx") {
+        "products" to products
+    }
 }
 ```
 

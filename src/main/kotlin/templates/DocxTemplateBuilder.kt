@@ -4,6 +4,10 @@ import io.github.alexmaryin.docxktm.dsl.DocxDsl
 import io.github.alexmaryin.docxktm.values.CurrencyFormat
 import io.github.alexmaryin.docxktm.values.DateFormat
 import io.github.alexmaryin.docxktm.values.NumberFormat
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.time.LocalDate
@@ -13,10 +17,12 @@ import java.util.Locale
 
 @DocxDsl
 class DocxTemplateBuilder {
-    internal val replacements = mutableMapOf<String, String>()
+    internal val replacements = mutableMapOf<String, Any>()
+    internal var jsonElement: JsonElement? = null
+
     private val pending = mutableListOf<PendingReplacement<*>>()
 
-    infix fun String.to(value: String) { replacements[this] = value }
+    infix fun <T : Any> String.to(value: T) { replacements[this] = value }
 
     infix fun String.to(value: Number): PendingNumber {
         val pendingNumber = PendingNumber(this, value, this@DocxTemplateBuilder)
@@ -65,6 +71,22 @@ class DocxTemplateBuilder {
         }
         this@DocxTemplateBuilder.replacements[this.key] = formatted
         this@DocxTemplateBuilder.pending.remove(this)
+    }
+
+    fun fromJson(json: JsonElement) {
+        jsonElement = json
+    }
+
+    fun fromJsonString(json: String) {
+        jsonElement = try {
+            Json.parseToJsonElement(json)
+        } catch (_: SerializationException) {
+            JsonNull
+        }
+    }
+
+    fun fromMap(map: Map<String, Any>) {
+        replacements.putAll(map)
     }
 
     internal fun commitPending() {

@@ -1,58 +1,42 @@
-package io.github.alexmaryin.docxktm
+package io.github.alexmaryin.docxktm.templates
 
+import io.github.alexmaryin.docxktm.DocxOpen
 import io.github.alexmaryin.docxktm.extensions.body
-import io.github.alexmaryin.docxktm.parts.paragraph
-import io.github.alexmaryin.docxktm.parts.text
-import io.github.alexmaryin.docxktm.templates.DocxTemplate
 import io.github.alexmaryin.docxktm.values.CurrencyFormat
 import io.github.alexmaryin.docxktm.values.DateFormat
 import io.github.alexmaryin.docxktm.values.NumberFormat
 import io.github.alexmaryin.docxktm.values.Paths
-import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class DocxTemplateTest {
-
-    private val today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
-
-    @BeforeTest
-    fun setup() {
-        if (!File(Paths.TEMPLATES_DIR + "template.docx").exists()) {
-            DocxNew(Paths.TEMPLATES_DIR + "template.docx") {
-                body {
-                    paragraph {
-                        text($$"This template is made by ${name} for testing ${library} library.")
-                    }
-                    paragraph {
-                        text($$"Today is: ${today}.")
-                    }
-                }
-            }
+internal class SimpleDSLTemplatesTests : TemplatesTestBase() {
+    @Test
+    fun `Rich template should return doc with merged fields`() {
+        DocxTemplate(
+            Paths.TEMPLATES_DIR + "template_rich.docx",
+            Paths.TEST_DOCX_DIR + "merged_result2.docx"
+        ) {
+            fromMap(richDict)
         }
-        if (!File(Paths.TEMPLATES_DIR + "default_filler_template.docx").exists()) {
-            DocxNew(Paths.TEMPLATES_DIR + "default_filler_template.docx") {
-                body {
-                    paragraph {
-                        text($$"Hello ${name}, welcome to ${place}.")
-                    }
-                    paragraph {
-                        text($$"Your age is ${age} and status is ${status}.")
-                    }
-                    paragraph {
-                        text($$"Missing field: ${missing}.")
-                    }
-                }
+        DocxOpen(Paths.TEST_DOCX_DIR + "merged_result2.docx", autoSave = false) {
+            body {
+                assertTrue { getParagraphs().size == 5 }
+                assertEquals(expected = "Second template test.", actual = "${getParagraphs()[0]}")
+                assertEquals(expected = "Hello, my name is Alex and I’m 39.", actual = "${getParagraphs()[1]}")
+                assertEquals(expected = "Today is 2023-01-01.", actual = "${getParagraphs()[2]}")
+                assertEquals(expected = "User is Active.", actual = "${getParagraphs()[3]}")
+                assertEquals(expected = "Paragraph with error: ", actual = "${getParagraphs()[4]}")
             }
         }
     }
 
     @Test
     fun `Create placeholders with DSL test`() {
+        val today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+
         DocxTemplate(
             templateFilename = Paths.TEMPLATES_DIR + "template.docx",
             outputFilename = Paths.TEST_DOCX_DIR + "outputDSL.docx"
@@ -131,6 +115,47 @@ class DocxTemplateTest {
                 assertEquals(
                     expected = "Missing field: .",
                     actual = "${getParagraphs()[2]}"
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `Create custom data class placeholder with evaluation fields and filler`() {
+        val testUser = User("Alex", 41, Gender.MALE)
+
+        DocxTemplate(
+            templateFilename = Paths.TEMPLATES_DIR + "klass_template.docx",
+            outputFilename = Paths.TEST_DOCX_DIR + "klass_output.docx",
+            filler = "no data"
+        ) {
+            "user" to testUser
+            "simpleField" to "text"
+        }
+        /** OUTPUT:
+         * Hello Alex, welcome to MVEL2.
+         * Your age is 41 and gender is male.
+         * Simple field: text.
+         * Missing field: no data.
+         */
+        DocxOpen(Paths.TEST_DOCX_DIR + "klass_output.docx", autoSave = false) {
+            body {
+                assertTrue { getParagraphs().size == 4 }
+                assertEquals(
+                    expected = "Hello Alex, welcome to MVEL2.",
+                    actual = "${getParagraphs()[0]}"
+                )
+                assertEquals(
+                    expected = "Your age is 41 and gender is male.",
+                    actual = "${getParagraphs()[1]}"
+                )
+                assertEquals(
+                    expected = "Simple field: text.",
+                    actual = "${getParagraphs()[2]}"
+                )
+                assertEquals(
+                    expected = "Missing field: no data.",
+                    actual = "${getParagraphs()[3]}"
                 )
             }
         }
