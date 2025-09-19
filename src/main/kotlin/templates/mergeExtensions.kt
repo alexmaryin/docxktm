@@ -60,7 +60,6 @@ internal fun resolverFactory(dict: Map<String, Any?>, filler: String) = object :
  */
 internal fun Body.mergeTemplateMap(dict: Map<String, Any>, filler: String = "") {
     val jc = document.mainDocumentPart.jaxbContext
-    val templateString = XmlUtils.marshaltoString(document.mainDocumentPart.jaxbElement, true, false, jc)
     //process tables first
     for (table in getTables()) {
         for (row in table.getRows()) {
@@ -69,7 +68,7 @@ internal fun Body.mergeTemplateMap(dict: Map<String, Any>, filler: String = "") 
             mvelForeach.find(rowXml)?.let { matchResult ->
                 val loopDefinition = matchResult.groupValues[1] // extract { item : items } names
                 val (itemVar, collectionVar) = loopDefinition.split(":").map { it.trim() }
-                dict.findCollection(collectionVar)?.let { array ->
+                dict.listAtPath(collectionVar)?.let { array ->
                     val templateRowXml = rowXml.replace(mvelForeach, "").replace(mvelEnd, "")
                     val newRows = buildList {
                         for (item in array) {
@@ -91,6 +90,7 @@ internal fun Body.mergeTemplateMap(dict: Map<String, Any>, filler: String = "") 
         }
     }
     // process other merged fields outside any table
+    val templateString = XmlUtils.marshaltoString(document.mainDocumentPart.jaxbElement, true, false, jc)
     val compiledTemplate = TemplateCompiler.compileTemplate(templateString)
     val factory = resolverFactory(dict, filler)
     val mergedString = TemplateRuntime.execute(compiledTemplate, dict, factory).toString()

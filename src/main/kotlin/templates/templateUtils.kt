@@ -33,8 +33,7 @@ private fun JsonElement.toPlainValue(): Any = when (this) {
     JsonNull -> ""
 }
 
-
-fun JsonElement.findJsonArray(name: String): JsonArray? = when (this) {
+internal fun JsonElement.findJsonArray(name: String): JsonArray? = when (this) {
     is JsonObject -> this[name] as? JsonArray
         ?: values.asSequence().mapNotNull { it.findJsonArray(name) }.firstOrNull()
 
@@ -63,6 +62,27 @@ fun Map<String, Any?>.findCollection(key: String): Collection<Any?>? {
                 }
             }
         }
+    }
+    return null
+}
+
+/**
+ * Follows a dot-separated path like "item.subitem.subsubitem.detailsList"
+ * through nested maps and returns the value **only if the last segment is a List**.
+ * Returns null when:
+ *   - any key in the path is missing,
+ *   - any intermediate value is not a map,
+ *   - the final value is not a List.
+ */
+@Suppress("UNCHECKED_CAST")
+fun Map<String, Any>.listAtPath(path: String): List<*>? {
+    val segments = path.split('.')
+    var current: Any? = this
+
+    for (i in segments.indices) {
+        val key = segments[i]
+        current = (current as? Map<String, Any>)?.get(key) ?: return null
+        if (i == segments.lastIndex && current is List<*>) return current
     }
     return null
 }
