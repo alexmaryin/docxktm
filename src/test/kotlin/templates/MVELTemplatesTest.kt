@@ -56,21 +56,21 @@ internal class MVELTemplatesTest : TemplatesTestBase() {
         }
     }
 
-//    @Test
-//    fun `MVEL2 template with complicated statements`() {
-//
-//        data class Order(val id: Int, val amount: Double)
-//        data class Customer(val name: String, val orders: List<Order>)
-//
-//        DocxTemplate(
-//            Paths.TEMPLATES_DIR + "mvel_gpt.docx",
-//            Paths.TEST_DOCX_DIR + "mvel_gpt_output.docx"
-//        ) {
-//            val customer = Customer(
-//                name = "John Doe",
-//                orders = listOf(Order(1, 120.50), Order(2, 75.00))
-//            )
-//            "customer" to customer
-//        }
-//    }
+    @Test
+    fun `MVEL2 template with complicated statements`() {
+
+        data class Order(val id: Int, val amount: Double)
+        data class Customer(val name: String, val orders: List<Order>)
+
+        DocxTemplate(
+            Paths.TEMPLATES_DIR + "mvel2_eval_template.docx",
+            Paths.TEST_DOCX_DIR + "mvel2_eval_output.docx"
+        ) {
+            val customer = Customer(
+                name = "John Doe",
+                orders = listOf(Order(1, 120.50), Order(2, 75.00))
+            )
+            "customer" to customer
+        }
+    }
 }

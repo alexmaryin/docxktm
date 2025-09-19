@@ -54,11 +54,6 @@ dependencies {
 Use the `DocxNew` function to create a new document from scratch. The `body` block is the entry point for adding content.
 
 ```kotlin
-import io.github.alexmaryin.docxktm.DocxNew
-import io.github.alexmaryin.docxktm.extensions.body
-import io.github.alexmaryin.docxktm.parts.paragraph
-import io.github.alexmaryin.docxktm.parts.text
-
 fun main() {
     DocxNew("output/hello_world.docx") {
         body {
@@ -75,13 +70,6 @@ fun main() {
 Use `DocxOpen` to load an existing `.docx` file, modify it, and save the changes to a new file (or overwrite the original).
 
 ```kotlin
-import io.github.alexmaryin.docxktm.DocxOpen
-import io.github.alexmaryin.docxktm.extensions.body
-import io.github.alexmaryin.docxktm.parts.paragraph
-import io.github.alexmaryin.docxktm.parts.text
-import io.github.alexmaryin.docxktm.models.ParagraphStyle
-import io.github.alexmaryin.docxktm.values.Styles
-
 fun main() {
     DocxOpen("input.docx", "modified.docx") {
         body {
@@ -100,9 +88,6 @@ fun main() {
 The core of any document is its text. `DocxKtm` provides a simple way to add paragraphs and styled text runs.
 
 ```kotlin
-import io.github.alexmaryin.docxktm.models.*
-import io.github.alexmaryin.docxktm.values.*
-
 // ... inside body { ... }
 paragraph(ParagraphStyle(styleName = Styles.TITLE, alignment = Alignment.CENTER)) {
     text("Main Title")
@@ -127,10 +112,6 @@ paragraph {
 Create complex tables with full control over styling for the table, rows, and cells.
 
 ```kotlin
-import io.github.alexmaryin.docxktm.models.*
-import io.github.alexmaryin.docxktm.values.*
-import io.github.alexmaryin.docxktm.parts.table
-
 // ... inside body { ... }
 table(
     TableStyle(
@@ -150,8 +131,8 @@ table(
 
     // Data Row
     row {
-        cell { paragraph { text("Data 1.1") } }
-        cell { paragraph { text("Data 1.2") } }
+        textInCell("Data 1.1")
+        textInCell("Data 1.2")
     }
 
     // Row with spanned cells
@@ -170,9 +151,6 @@ table(
 Embed images from files and control their size and placement.
 
 ```kotlin
-import io.github.alexmaryin.docxktm.models.fromCmToEMU
-import io.github.alexmaryin.docxktm.parts.imageFromFile
-
 // ... inside body { ... }
 paragraph(ParagraphStyle(alignment = Alignment.CENTER)) {
     // Bind the image first to make it available to the document
@@ -199,11 +177,6 @@ paragraph {
 Add headers and footers to your document, including dynamic page numbers.
 
 ```kotlin
-import io.github.alexmaryin.docxktm.extensions.header
-import io.github.alexmaryin.docxktm.extensions.footer
-import io.github.alexmaryin.docxktm.models.ParagraphStyle
-import io.github.alexmaryin.docxktm.values.Alignment
-
 // ... inside DocxNew { ... }
 header(ParagraphStyle(alignment = Alignment.CENTER)) {
     text("My Document Header")
@@ -221,9 +194,58 @@ footer(ParagraphStyle(alignment = Alignment.RIGHT)) {
 }
 ```
 
+
+## Simple Templating
+
+`DocxKtm` supports simple templating with placeholders in the format `${placeholder}`
+This feature uses the fastest algorithm provided by docx4j engine. To use it just write inside the body block of the opened document:
+```kotlin
+// ... inside body { ... }
+    val replacementsMap = mapOf("name" to "Alex", "age" to "41")
+    mergeTemplateStrMap(replacementsMap)
+```
+
 ## Advanced Templating
 
 `DocxKtm` offers a sophisticated templating engine. Create a `.docx` file with placeholders and populate it dynamically.
+Entry point to create a template is `DocxTemplate` function where you may use any type of the following replacement builders:
+```kotlin
+DocxTemplate(
+    templateFilename = "template.docx",
+    outputFilename = "output.docx",
+    filler = "no data" // <- it is the backup for missing keys, default is empty string
+) {
+    // ... single replacement variable, in docx template it will be ${name}
+    "name" to "John Doe"
+    // ... or any number type
+    "value" to 12345.67
+    // ... or number type with custom formatting
+    "amount" to 12345.67 with NumberFormat("0#,###")
+    // ... or number type with currency formatting (library provides USD, RUB, EUR and CHF at the moment
+    "cost in USD" to 12345.67 with CurrencyFormat.USD
+    // ... or date type with custom formatting as well as date-time
+    "date" to LocalDate.now() with DateFormat("dd.MM.yyyy")
+    "date and time" to LocalDateTime.now() with DateFormat("dd.MM.yyyy HH:mm:ss")
+
+    // ... or use an injected map of replacements, and values may be any type. Literally Any including data classes like User above.
+    // NOTE: the replacement map should be the type of Map<String, Any> including nested maps or lists.
+    fromMap(mapOf("name" to "John Doe", "age" to 30, "items" to listOf(1, 2, 3)))
+    
+    // ... or use a predefined data class (java class) for replacements
+    // NOTE: if you want to use enums, your template should contain pattern like ${user.gender.name()}
+    val testUser = User(name = "Alex", age = gender = 41, Gender.MALE)
+    "user" to testUser
+    
+    // ... or use JSON string with replacements with primitive fields, nested objects and JSON arrays
+    val jsonString = """{order: {id: 123, customer: "Me", items: [{name: "Keyboard", price: 119.99}. {name: "Mouse", price: 49.99}]}}"""
+    fromJsonString(jsonString)
+    // ... or deserialized JSON Element with the same structure
+    val json = Json.parseToJsonElement(jsonString)
+    fromJson(json)
+    
+    // All these builders you may combine in the one block of code.
+}
+```
 
 ### MVEL2 Expression Language
 
@@ -233,10 +255,10 @@ Take full control of your templates with the MVEL2 expression language. This all
 ```
 > Customer: ${customer.name.toUpperCase()}
 > 
-> @if{customer.orders.size() > 0}
+> @if{customer.orders != empty}
 >   Recent Orders:
 >   @foreach{order : customer.orders}
->     - Order #${order.id} - Amount: ${new java.text.DecimalFormat('$#,##0.00').format(order.amount)}
+>     - Order #${order.id} - Amount: ${order.amount}
 >   @end{}
 > @else{}
 >   No recent orders.
@@ -246,8 +268,6 @@ Take full control of your templates with the MVEL2 expression language. This all
 **Kotlin code:**
 
 ```kotlin
-import io.github.alexmaryin.docxktm.templates.DocxTemplate
-
 data class Customer(val name: String, val orders: List<Order>)
 data class Order(val id: Int, val amount: Double)
 
@@ -280,8 +300,6 @@ Define a table with a single data row and use the `@foreach {item: collection_na
 **Kotlin code:**
 
 ```kotlin
-import io.github.alexmaryin.docxktm.templates.DocxTemplate
-
 data class Product(val name: String, val quantity: Int, val price: Double)
 
 fun generateProductTable() {
@@ -294,48 +312,6 @@ fun generateProductTable() {
     DocxTemplate("table_template.docx", "product_table.docx") {
         "products" to products
     }
-}
-```
-
-#### From a JSON String
-
-You can also populate a table directly from a JSON string representing an array of objects.
-
-**Kotlin code:**
-
-```kotlin
-import io.github.alexmaryin.docxktm.templates.DocxTemplate
-
-fun generateProductTableFromJson() {
-    val productsJson = '''
-        [
-            {"name": "Laptop", "quantity": 1, "price": 1200.00},
-            {"name": "Mouse", "quantity": 2, "price": 25.50},
-            {"name": "Keyboard", "quantity": 1, "price": 75.00}
-        ]
-    '''
-
-    DocxTemplate("table_template.docx", "product_table_from_json.docx") {
-        "products" to productsJson
-    }
-}
-```
-
-### Simple String-based Templating
-
-For quick and simple replacements, you can use `mergeTemplate`.
-
-```kotlin
-import io.github.alexmaryin.docxktm.extensions.body
-
-// ... inside DocxOpen { ... }
-body {
-    val replacements = hashMapOf(
-        "customer_name" to "Jane Doe",
-        "order_date" to "2023-10-27",
-        "total_amount" to "$150.00"
-    )
-    mergeTemplate(replacements)
 }
 ```
 

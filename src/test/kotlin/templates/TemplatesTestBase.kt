@@ -186,5 +186,20 @@ internal open class TemplatesTestBase {
                 }
             }
         }
+
+        if(!File(Paths.TEMPLATES_DIR + "mvel2_eval_template.docx").exists()) {
+            DocxNew(Paths.TEMPLATES_DIR + "mvel2_eval_template.docx") {
+                body {
+                    paragraph { text($$"Customer: ${customer.name.toUpperCase()}") }
+                    paragraph { text("@if{customer.orders != empty}") }
+                    paragraph { text("@foreach{order : customer.orders}") }
+                    paragraph { text($$"- Order #${order.id} - Amount: ${order.amount}") }
+                    paragraph { text("@end{}") }
+                    paragraph { text("@else{}") }
+                    paragraph { text("No recent orders.") }
+                    paragraph { text("@end{}") }
+                }
+            }
+        }
     }
 }

@@ -4,6 +4,7 @@ import io.github.alexmaryin.docxktm.extensions.getRows
 import io.github.alexmaryin.docxktm.parts.Body
 import kotlinx.serialization.json.JsonElement
 import org.docx4j.XmlUtils
+import org.docx4j.model.datastorage.migration.VariablePrepare
 import org.docx4j.wml.Document
 import org.docx4j.wml.Tr
 import org.mvel2.integration.VariableResolver
@@ -59,6 +60,8 @@ internal fun resolverFactory(dict: Map<String, Any?>, filler: String) = object :
  * Templates may contain MVEL2 statements
  */
 internal fun Body.mergeTemplateMap(dict: Map<String, Any>, filler: String = "") {
+    VariablePrepare.prepare(document)
+
     val jc = document.mainDocumentPart.jaxbContext
     //process tables first
     for (table in getTables()) {
