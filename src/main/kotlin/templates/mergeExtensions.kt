@@ -18,9 +18,17 @@ import org.mvel2.templates.TemplateRuntime
  *
  * Field for population should be bounded with ```${field_name}``` symbols
  *
- * The fastest way to merge template with dictionary
+ * The fastest way to merge template with dictionary in opinion of docx4j
+ *
+ * BUT...
+ *
+ * MVEL2 evaluations I have implemented here are faster in two times
+ * especially on regular size of replacement maps. And even of virtual maps of 5000 variables.
+ *
+ * See for details test called `Measure simple variable replacements performance`
  */
 fun Body.mergeTemplateStrMap(dict: Map<String, String>) {
+    VariablePrepare.prepare(document)
     document.mainDocumentPart.variableReplace(dict)
 }
 
@@ -61,7 +69,6 @@ internal fun resolverFactory(dict: Map<String, Any?>, filler: String) = object :
  */
 internal fun Body.mergeTemplateMap(dict: Map<String, Any>, filler: String = "") {
     VariablePrepare.prepare(document)
-
     val jc = document.mainDocumentPart.jaxbContext
     //process tables first
     for (table in getTables()) {
@@ -85,7 +92,6 @@ internal fun Body.mergeTemplateMap(dict: Map<String, Any>, filler: String = "") 
                             add(newRow)
                         }
                     }
-
                     table.content.remove(row)
                     table.content.addAll(newRows)
                 }

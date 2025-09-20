@@ -12,10 +12,10 @@ Whether you need to generate reports, invoices, or any other structured document
 *   **Document Creation & Editing:** Create new documents from scratch or open and modify existing ones.
 *   **Rich Content:** Easily add and style paragraphs, text, tables, images, headers, and footers.
 *   **Powerful Templating:**
-    *   Simple key-value placeholder replacement (`${variable}`).
-    *   Advanced type-safe templating for classes, numbers, dates, and currencies with custom formatting.
-    *   **Rich MVEL2 syntax support** for complex expressions, conditional logic, and loops within templates.
-    *   **Dynamic table population** from collections of objects or JSON strings.
+    *   Simple key-value placeholder replacement (`${variable}`) provided by `docx4j`.
+    *   Advanced type-safe templating for classes, numbers, dates, and currencies with custom formatting based on `MVEL2` evaluations.
+    *   **Rich `MVEL2` syntax support** for complex expressions, conditional logic, and loops within templates.
+    *   **Dynamic table population** from collections of objects or JSON arrays.
 *   **Comprehensive Styling:** Apply styles to text, paragraphs, tables, rows, and cells.
 *   **Full `docx4j` Access:** Drop down to the underlying `docx4j` API for advanced or unsupported features.
 
@@ -32,7 +32,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.alexmaryin:docxktm:1.3.0") // Replace with the latest version
+    implementation("io.github.alexmaryin:docxktm:1.3.1") // Replace with the latest version
 }
 ```
 
@@ -43,7 +43,7 @@ dependencies {
 <dependency>
     <groupId>io.github.alexmaryin</groupId>
     <artifactId>docxktm</artifactId>
-    <version>1.3.0</version> <!-- Replace with the latest version -->
+    <version>1.3.1</version> <!-- Replace with the latest version -->
 </dependency>
 ```
 
@@ -198,12 +198,20 @@ footer(ParagraphStyle(alignment = Alignment.RIGHT)) {
 ## Simple Templating
 
 `DocxKtm` supports simple templating with placeholders in the format `${placeholder}`
-This feature uses the fastest algorithm provided by docx4j engine. To use it just write inside the body block of the opened document:
+This feature uses the fastest algorithm provided by `docx4j` engine. To use it just write inside the body block of the opened document:
 ```kotlin
 // ... inside body { ... }
     val replacementsMap = mapOf("name" to "Alex", "age" to "41")
     mergeTemplateStrMap(replacementsMap)
 ```
+
+### Remark
+However, my own experiments convincingly demonstrate that `MVEL2` evaluations, 
+even in simple cases of using a dictionary of strings to replace simple substitution fields, 
+are twice as fast as the `docx4j` algorithm on reasonable dictionary examples 
+(hmm, let's say 500, if you have a document with that many substitution fields, let me know) 
+and are still faster on the dictionary the size of 5000 fields.
+See for details tests in `src/test/kotlin/templates/TemplatesPerformanceTests.kt`
 
 ## Advanced templating
 
@@ -375,6 +383,10 @@ fun generateProductTable() {
     }
 }
 ```
+
+## Examples
+
+You may find much more detailed samples for using DocxKtm in tests sources `src/test/kotlin`
 
 ## Contributing
 

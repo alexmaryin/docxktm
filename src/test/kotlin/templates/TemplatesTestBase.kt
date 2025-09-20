@@ -4,7 +4,6 @@ import io.github.alexmaryin.docxktm.DocxNew
 import io.github.alexmaryin.docxktm.extensions.body
 import io.github.alexmaryin.docxktm.models.RowStyle
 import io.github.alexmaryin.docxktm.models.TextStyle
-import io.github.alexmaryin.docxktm.models.headerRowStyle
 import io.github.alexmaryin.docxktm.parts.paragraph
 import io.github.alexmaryin.docxktm.parts.table
 import io.github.alexmaryin.docxktm.parts.text
@@ -191,13 +190,15 @@ internal open class TemplatesTestBase {
             DocxNew(Paths.TEMPLATES_DIR + "mvel2_eval_template.docx") {
                 body {
                     paragraph { text($$"Customer: ${customer.name.toUpperCase()}") }
-                    paragraph { text("@if{customer.orders != empty}") }
-                    paragraph { text("@foreach{order : customer.orders}") }
-                    paragraph { text($$"- Order #${order.id} - Amount: ${order.amount}") }
-                    paragraph { text("@end{}") }
-                    paragraph { text("@else{}") }
-                    paragraph { text("No recent orders.") }
-                    paragraph { text("@end{}") }
+                    paragraph {
+                        text("@if{customer.orders != empty}")
+                        text("@foreach{order : customer.orders}")
+                        text($$"- Order #${order.id} - Amount: ${order.amount}", breakLine = true)
+                        text("@end{}")
+                        text("@else{}")
+                        text("No recent orders.")
+                        text("@end{}")
+                    }
                 }
             }
         }
