@@ -18,21 +18,16 @@ class TableTest {
             body {
                 table(TableStyle(borders = TableBorder.All(BorderStyle(width = 1)))) {
                     row {
-                        repeat(3) {
-                            cell {
-                                paragraph(ParagraphStyle(alignment = Alignment.CENTER)) {
-                                    text("caption ${it + 1}", normalTextStyle.copy(bold = true))
-                                }
-                            }
-                        }
+                        listInCells(
+                            List(3) { "caption ${it + 1}" },
+                            normalTextStyle.copy(bold = true),
+                            ParagraphStyle(alignment = Alignment.CENTER)
+                        )
                     }
+
                     repeat(3) { row ->
                         row {
-                            repeat(3) { col ->
-                                cell {
-                                    paragraph { text("row ${row + 2} cell ${col + 1}") }
-                                }
-                            }
+                            listInCells(List(3) { "row ${row + 2} cell ${it + 1}" })
                         }
                     }
                 }
@@ -48,8 +43,9 @@ class TableTest {
                 val firstRow = rows.first()
                 val cells = firstRow.getCells()
                 assertTrue { cells.size == 3 }
-                cells.forEachIndexed { idx, cell ->
-                    assertEquals(expected = "caption ${idx + 1}", actual = "${cell.getParagraphs().first()}")
+                firstRow.assertCellsEquals(List(3) { "caption ${it + 1}" })
+                for ((idx, row) in rows.drop(1).withIndex()) {
+                    row.assertCellsEquals(List(3) { "row ${idx + 2} cell ${it + 1}" })
                 }
             }
         }
@@ -64,10 +60,7 @@ class TableTest {
                 }
                 table(TableStyle(borders = TableBorder.OnlyMargin(BorderStyle(width = 1)))) {
                     row {
-                        cell {
-                            paragraph { text("Simple cell") }
-                            paragraph { text("with second paragraph") }
-                        }
+                        listInCells(listOf("Simple cell","with second paragraph"))
                         cell {
                             paragraph { text("Nested table:") }
                             table(
@@ -84,23 +77,13 @@ class TableTest {
                                 )
                             ) {
                                 row {
-                                    cell {
-                                        paragraph { text("First nested cell") }
-                                    }
-                                    cell {
-                                        paragraph { text("Second nested cell") }
-                                    }
+                                    listInCells(listOf("First nested cell", "Second nested cell"))
                                 }
                             }
                         }
                     }
                     row {
-                        cell {
-                            paragraph { text("Continue first table") }
-                        }
-                        cell {
-                            paragraph { text("Continue second column") }
-                        }
+                        listInCells(listOf("Continue first table", "Continue second column"))
                     }
                 }
             }

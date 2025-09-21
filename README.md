@@ -134,6 +134,11 @@ table(
         textInCell("Data 1.1")
         textInCell("Data 1.2")
     }
+    
+    // Data row with simplified syntax for cells
+    row {
+        listInCells(List(3) { "Data 2.${it + 1}" })
+    }
 
     // Row with spanned cells
     row {
