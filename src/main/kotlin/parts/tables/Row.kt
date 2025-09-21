@@ -2,6 +2,7 @@ package io.github.alexmaryin.docxktm.parts.tables
 
 import io.github.alexmaryin.docxktm.docxFactory
 import io.github.alexmaryin.docxktm.models.CellStyle
+import io.github.alexmaryin.docxktm.models.ParagraphStyle
 import io.github.alexmaryin.docxktm.models.RowStyle
 import io.github.alexmaryin.docxktm.models.TextStyle
 import io.github.alexmaryin.docxktm.models.normalTextStyle
@@ -52,6 +53,20 @@ class Row(style: RowStyle?) : ContentProvider {
         Cell(style).apply {
             block(this)
             this@Row.add(getTc())
+        }
+    }
+
+    fun listInCells(
+        values: List<Any>,
+        textStyle: TextStyle? = null,
+        paragraphStyle: ParagraphStyle? = null
+    ) {
+        values.forEach { value ->
+            cell {
+                paragraph(paragraphStyle) {
+                    text(value.toString(), textStyle ?: normalTextStyle)
+                }
+            }
         }
     }
 

@@ -10,7 +10,7 @@ repositories {
 }
 
 group = "io.github.alexmaryin"
-version = "1.3.1"
+version = "1.3.2"
 
 dependencies {
     api("org.docx4j:docx4j-JAXB-ReferenceImpl:11.5.5")
