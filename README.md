@@ -32,7 +32,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.alexmaryin:docxktm:1.3.1") // Replace with the latest version
+    implementation("io.github.alexmaryin:docxktm:1.3.2") // Replace with the latest version
 }
 ```
 
@@ -43,7 +43,7 @@ dependencies {
 <dependency>
     <groupId>io.github.alexmaryin</groupId>
     <artifactId>docxktm</artifactId>
-    <version>1.3.1</version> <!-- Replace with the latest version -->
+    <version>1.3.2</version> <!-- Replace with the latest version -->
 </dependency>
 ```
 

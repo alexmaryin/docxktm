@@ -5,6 +5,7 @@ import io.github.alexmaryin.docxktm.extensions.applyProperties
 import io.github.alexmaryin.docxktm.models.*
 import io.github.alexmaryin.docxktm.parts.tables.Table
 import org.docx4j.openpackaging.parts.WordprocessingML.BinaryPartAbstractImage
+import org.docx4j.wml.STBrType
 import javax.imageio.ImageIO
 
 interface ContentProvider {
@@ -122,4 +123,17 @@ fun ParagraphContent.imageFromFile(file: WordImage) {
     drawing.anchorOrInline.add(inline)
     runBlock.content.add(drawing)
     add(runBlock)
+}
+
+/**
+ * Add page divider into the document
+ */
+fun ContentProvider.pageDivider() {
+    paragraph {
+        val runBlock = docxFactory.createR()
+        runBlock.content.add(docxFactory.createBr().apply {
+            type = STBrType.PAGE
+        })
+        add(runBlock)
+    }
 }
