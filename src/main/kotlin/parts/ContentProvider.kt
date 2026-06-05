@@ -69,10 +69,13 @@ fun ParagraphContent.imageFromFile(file: WordImage) {
     val originWidthPx = info.width
     val originHeightPx = info.height
 
+    val safeFilename = file.filename.escapeXml()
+    val safeDescription = file.description.escapeXml()
+
     val inline = when {
         file.height != null && file.width != null -> imagePart.createImageInline(
-            file.filename,
-            file.description,
+            safeFilename,
+            safeDescription,
             file.id,
             file.id.toInt(),
             file.width,
@@ -84,8 +87,8 @@ fun ParagraphContent.imageFromFile(file: WordImage) {
             val ratio = originHeightPx.toDouble() / originWidthPx.toDouble()
             val scaledHeight = (file.width * ratio).toLong()
             imagePart.createImageInline(
-                file.filename,
-                file.description,
+                safeFilename,
+                safeDescription,
                 file.id,
                 file.id.toInt(),
                 file.width,
@@ -98,8 +101,8 @@ fun ParagraphContent.imageFromFile(file: WordImage) {
             val ratio = originWidthPx.toDouble() / originHeightPx.toDouble()
             val scaledWidth = (file.height * ratio).toLong()
             imagePart.createImageInline(
-                file.filename,
-                file.description,
+                safeFilename,
+                safeDescription,
                 file.id,
                 file.id.toInt(),
                 scaledWidth,
@@ -109,8 +112,8 @@ fun ParagraphContent.imageFromFile(file: WordImage) {
         }
 
         else -> imagePart.createImageInline(
-            file.filename,
-            file.description,
+            safeFilename,
+            safeDescription,
             file.id,
             file.id.toInt(),
             originWidthPx.fromPxToEMU(),
@@ -124,6 +127,13 @@ fun ParagraphContent.imageFromFile(file: WordImage) {
     runBlock.content.add(drawing)
     add(runBlock)
 }
+
+private fun String.escapeXml(): String = this
+    .replace("&", "&amp;")
+    .replace("<", "&lt;")
+    .replace(">", "&gt;")
+    .replace("\"", "&quot;")
+    .replace("'", "&apos;")
 
 /**
  * Add page divider into the document

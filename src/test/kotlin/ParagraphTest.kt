@@ -183,6 +183,23 @@ class ParagraphTest {
     }
 
     @Test
+    fun `Create paragraph with ampersand symbol and verify it`() {
+        DocxNew(Paths.TEST_DOCX_DIR + "ampersand_p.docx") {
+            body {
+                paragraph {
+                    text("A & B")
+                }
+            }
+        }
+        DocxOpen(Paths.TEST_DOCX_DIR + "ampersand_p.docx", autoSave = false) {
+            body {
+                assertTrue { getParagraphs().size == 1 }
+                assertEquals(expected = "A & B", actual = "${getParagraphs().first()}")
+            }
+        }
+    }
+
+    @Test
     fun `Create document with different spacing in paragraph`() {
         DocxNew(Paths.TEST_DOCX_DIR + "spacing.docx") {
             body {

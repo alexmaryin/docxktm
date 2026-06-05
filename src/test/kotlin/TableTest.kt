@@ -129,6 +129,40 @@ class TableTest {
     }
 
     @Test
+    fun `Create table with ampersand in cells and verify it`() {
+        DocxNew(Paths.TEST_DOCX_DIR + "ampersand_table.docx") {
+            body {
+                table(TableStyle(borders = TableBorder.All(BorderStyle(width = 1)))) {
+                    row {
+                        listInCells(listOf("A & B", "C & D"))
+                    }
+                    row {
+                        listInCells(listOf("E & F", "G & H"))
+                    }
+                }
+            }
+        }
+        DocxOpen(Paths.TEST_DOCX_DIR + "ampersand_table.docx", autoSave = false) {
+            body {
+                val tables = getTables()
+                assertTrue { tables.size == 1 }
+                val rows = tables.first().getRows()
+                assertTrue { rows.size == 2 }
+                rows[0].getCells().let { cells ->
+                    assertTrue { cells.size == 2 }
+                    assertEquals(expected = "A & B", actual = "${cells[0].getParagraphs().first()}")
+                    assertEquals(expected = "C & D", actual = "${cells[1].getParagraphs().first()}")
+                }
+                rows[1].getCells().let { cells ->
+                    assertTrue { cells.size == 2 }
+                    assertEquals(expected = "E & F", actual = "${cells[0].getParagraphs().first()}")
+                    assertEquals(expected = "G & H", actual = "${cells[1].getParagraphs().first()}")
+                }
+            }
+        }
+    }
+
+    @Test
     fun `Test cell styles`() {
         DocxNew(Paths.TEST_DOCX_DIR + "table_cells.docx") {
             body {
